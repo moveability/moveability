@@ -1,0 +1,16 @@
+Package: moveability
+Title: Moveability statistics for any specified city
+Version: 0.0.0.1
+Authors@R: c(
+    person("Mark", "Padgham", email="mark.padgham@email.com",
+        role=c("aut", "cre")))
+Description: Moveability statistics for any specified city.
+License: GPL-3
+VignetteBuilder: knitr
+NeedsCompilation: yes
+Encoding: UTF-8
+LazyData: true
+URL: https://github.com/ATFutures/moveability
+BugReports: https://github.com/ATFutures/moveability/issues
+RoxygenNote: 6.1.1
+Roxygen: list(markdown = TRUE)
