@@ -6,6 +6,11 @@ Authors@R: c(
         role=c("aut", "cre")))
 Description: Moveability statistics for any specified city.
 License: GPL-3
+Imports:
+    dodgr,
+    methods,
+    osmdata,
+    pbapply
 Suggests:
     knitr
 VignetteBuilder: knitr

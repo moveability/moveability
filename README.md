@@ -10,8 +10,47 @@ Concept](http://www.repostatus.org/badges/latest/concept.svg)](http://www.repost
 
 # moveability: Forget walkability, i wanna skate
 
+## Warning: Currently experimental only
+
 Infrastructure to calculate comprehensive moveability statistics for a
 nominated city. Moveability is intended to connote any means by which
 people might actively move thenselves, primarily implying walking and
 cycling, but also potentially skating, scootering, wheelchairing, or any
 other conceivable form of active transport.
+
+## Usage
+
+Currently only one function that works like this:
+
+``` r
+library (moveability)
+m <- moveability (city = "muenster germany")
+```
+
+The function does a heap of heavy work, downloading the entire street
+net and calculating routes between every single pair of points in the
+network. This is likely to take quite some time - at least several
+minutes - but will provide progress information on the way. The result
+is a `data.frame` of all points in the street network for the nominated
+city, with a column `$m` quantifying walkability. The result can be
+directly viewed with [`mapdeck`](https://github.com/SymbolixAU/mapdeck)
+with the following code:
+
+``` r
+library (mapdeck)
+set_token (Sys.getenv ("MAPBOX_TOKEN"))
+loc <- c (mean (verts$x), mean (verts$y))
+verts$d <- 20 * verts$d / max (verts$d)
+mapdeck (style = 'mapbox://styles/mapbox/dark-v9',
+         zoom = 12,
+         location = loc) %>%
+    add_pointcloud (data = verts,
+              layer_id = "walkability",
+              lon = "x",
+              lat = "y",
+              radius = 10,
+              fill_colour = "d",
+              palette = "inferno")
+```
+
+![](demo.png)
