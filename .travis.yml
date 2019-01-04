@@ -24,6 +24,9 @@ matrix:
           r: release
         - os: osx
           r: devel
+    allow_failures:
+        - os: osx
+          r: devel
 
 notifications:
   email:
