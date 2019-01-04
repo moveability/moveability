@@ -24,9 +24,13 @@ matrix:
           r: release
         - os: osx
           r: devel
+          before_install: ''
+          disable_homebrew: true
     allow_failures:
         - os: osx
           r: devel
+          before_install: ''
+          disable_homebrew: true
 
 notifications:
   email:
