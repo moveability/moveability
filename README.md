@@ -18,6 +18,9 @@ people might actively move thenselves, primarily implying walking and
 cycling, but also potentially skating, scootering, wheelchairing, or any
 other conceivable form of active transport.
 
+Currently concept-only demo only calculates walkability (and doesn’t
+even do that properly just yet, but it will soon enough …)
+
 ## Usage
 
 Currently only one function that works like this:
