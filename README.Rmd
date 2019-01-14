@@ -45,7 +45,7 @@ that properly just yet, but it will soon enough ...)
 Currently only one function that works like this:
 ```{r, eval = FALSE}
 library (moveability)
-m <- moveability (city = "muenster germany")
+verts <- moveability (city = "muenster germany")
 ```
 The function does a heap of heavy work, downloading the entire street net and
 calculating routes between every single pair of points in the network. This
@@ -59,7 +59,7 @@ walkability. The result can be directly viewed with
 library (mapdeck)
 set_token (Sys.getenv ("MAPBOX_TOKEN"))
 loc <- c (mean (verts$x), mean (verts$y))
-verts$d <- 20 * verts$d / max (verts$d)
+verts$m <- 20 * verts$m / max (verts$m)
 mapdeck (style = 'mapbox://styles/mapbox/dark-v9',
          zoom = 12,
          location = loc) %>%
@@ -68,7 +68,6 @@ mapdeck (style = 'mapbox://styles/mapbox/dark-v9',
               lon = "x",
               lat = "y",
               radius = 10,
-              fill_colour = "d",
-              palette = "inferno")
+              fill_colour = "m")
 ```
 ![](demo.png)
