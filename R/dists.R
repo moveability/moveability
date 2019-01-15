@@ -5,6 +5,8 @@
 #' @param graph An `dodgr_streetnet` object
 #' @param from Vector of points from which moveability statistics are to be be
 #' calculated.
+#' @param d_threshold Distance threshold below which distances are to be
+#' aggreagted (in kilometres).
 #' @param quiet If `FALSE`, display progress messages on screen.
 #' @return Vector of moveability values for each point in `from`
 #'
@@ -15,7 +17,7 @@
 #' from <- sample (graph$from_id, size = 100)
 #' d <- move_dists (graph, from = from)
 #' # d is a 100-by-50 matrix of distances between `from` and `to`
-move_dists <- function (graph, from, quiet = TRUE)
+move_dists <- function (graph, from, d_threshold = 1, quiet = TRUE)
 {
     gr_cols <- c (2, 3, 6, 9, 10, 4, 5, 7, 8, 13)
     names (gr_cols) <- c ("edge_id", "from", "to", "d", "w",
@@ -36,20 +38,14 @@ move_dists <- function (graph, from, quiet = TRUE)
     if (!quiet)
         message ("Calculating shortest paths ... ", appendLF = FALSE)
 
-    d <- rcpp_get_sp_dists_par (graph, vert_map, from_index,
+    d <- rcpp_get_sp_dists_par (graph, vert_map, from_index, d_threshold,
                                 heap_type = "BHeap")
 
-    #if (flip)
-    #    d <- t (d)
-
-    #if (!is.null (from_id))
-    #    rownames (d) <- from_id
-    #else
-    #    rownames (d) <- vert_map$vert
-    #if (!is.null (to_id))
-    #    colnames (d) <- to_id
-    #else
-    #    colnames (d) <- vert_map$vert
+    if (!is.null (from_id))
+        rownames (d) <- from_id
+    else
+        rownames (d) <- vert_map$vert
+    colnames (d) <- vert_map$vert
 
     if (!quiet)
         message ("done.")

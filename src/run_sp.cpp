@@ -31,6 +31,7 @@ struct OneDist : public RcppParallel::Worker
 {
     RcppParallel::RVector <int> dp_fromi;
     const size_t nverts;
+    const double d_threshold;
     const std::shared_ptr <DGraph> g;
     const std::string heap_type;
 
@@ -40,10 +41,11 @@ struct OneDist : public RcppParallel::Worker
     OneDist (
             const Rcpp::IntegerVector fromi,
             const size_t nverts_in,
+            const double d_threshold_in,
             const std::shared_ptr <DGraph> g_in,
             const std::string & heap_type_in,
             Rcpp::NumericMatrix dout_in) :
-        dp_fromi (fromi), nverts (nverts_in),
+        dp_fromi (fromi), nverts (nverts_in), d_threshold (d_threshold_in),
         g (g_in), heap_type (heap_type_in), dout (dout_in)
     {
     }
@@ -137,6 +139,7 @@ void run_sp::make_vert_to_edge_maps (const std::vector <std::string> &from,
 Rcpp::NumericMatrix rcpp_get_sp_dists_par (const Rcpp::DataFrame graph,
         const Rcpp::DataFrame vert_map_in,
         Rcpp::IntegerVector fromi,
+        const double d_threshold,
         const std::string& heap_type)
 {
     Rcpp::NumericVector id_vec;
@@ -163,7 +166,7 @@ Rcpp::NumericMatrix rcpp_get_sp_dists_par (const Rcpp::DataFrame graph,
             static_cast <int> (nverts), na_vec.begin ());
 
     // Create parallel worker
-    OneDist one_dist (fromi, nverts, g, heap_type, dout);
+    OneDist one_dist (fromi, nverts, d_threshold, g, heap_type, dout);
 
     RcppParallel::parallelFor (0, static_cast <size_t> (fromi.length ()),
             one_dist);
@@ -178,6 +181,7 @@ Rcpp::NumericMatrix rcpp_get_sp_dists_par (const Rcpp::DataFrame graph,
 Rcpp::NumericMatrix rcpp_get_sp_dists (const Rcpp::DataFrame graph,
         const Rcpp::DataFrame vert_map_in,
         Rcpp::IntegerVector fromi,
+        const double d_threshold,
         const std::string& heap_type)
 {
     Rcpp::NumericVector id_vec;

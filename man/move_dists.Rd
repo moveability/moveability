@@ -4,13 +4,16 @@
 \alias{move_dists}
 \title{movedists}
 \usage{
-move_dists(graph, from, quiet = TRUE)
+move_dists(graph, from, d_threshold = 1, quiet = TRUE)
 }
 \arguments{
 \item{graph}{An \code{dodgr_streetnet} object}
 
 \item{from}{Vector of points from which moveability statistics are to be be
 calculated.}
+
+\item{d_threshold}{Distance threshold below which distances are to be
+aggreagted (in kilometres).}
 
 \item{quiet}{If \code{FALSE}, display progress messages on screen.}
 }

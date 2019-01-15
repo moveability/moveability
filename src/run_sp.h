@@ -45,9 +45,11 @@ void make_vert_to_edge_maps (const std::vector <std::string> &from,
 Rcpp::NumericMatrix rcpp_get_sp_dists (const Rcpp::DataFrame graph,
         const Rcpp::DataFrame vert_map_in,
         std::vector <int> fromi,
+        const double d_threshold,
         const std::string& heap_type);
 
 Rcpp::NumericMatrix rcpp_get_sp_dists_par (const Rcpp::DataFrame graph,
         const Rcpp::DataFrame vert_map_in,
         Rcpp::IntegerVector fromi,
+        const double d_threshold,
         const std::string& heap_type);
