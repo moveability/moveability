@@ -52,7 +52,17 @@ calculating routes between every single pair of points in the network. This
 is likely to take quite some time - at least several minutes - but will provide
 progress information on the way. The result is a `data.frame` of all points in
 the street network for the nominated city, with a column `$m` quantifying
-walkability. The result can be directly viewed with
+walkability.
+
+An alternative approach is to pre-download the network and submit that to the
+`moveability()` function:
+```{r, eval = FALSE}
+net <- dodgr::dodgr_streetnet (bbox = city, expand = 0.05) %>%
+    dodgr::weight_streetnet (wt_profile = "foot") # or whatever
+verts <- moveability (streetnet = net)
+```
+
+The result can be directly viewed with
 [`mapdeck`](https://github.com/SymbolixAU/mapdeck) with the following code:
 
 ```{r mapdeck, eval = FALSE}

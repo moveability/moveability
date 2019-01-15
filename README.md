@@ -27,7 +27,7 @@ Currently only one function that works like this:
 
 ``` r
 library (moveability)
-m <- moveability (city = "muenster germany")
+verts <- moveability (city = "muenster germany")
 ```
 
 The function does a heap of heavy work, downloading the entire street
@@ -35,15 +35,26 @@ net and calculating routes between every single pair of points in the
 network. This is likely to take quite some time - at least several
 minutes - but will provide progress information on the way. The result
 is a `data.frame` of all points in the street network for the nominated
-city, with a column `$m` quantifying walkability. The result can be
-directly viewed with [`mapdeck`](https://github.com/SymbolixAU/mapdeck)
-with the following code:
+city, with a column `$m` quantifying walkability.
+
+An alternative approach is to pre-download the network and submit that
+to the `moveability()` function:
+
+``` r
+net <- dodgr::dodgr_streetnet (bbox = city, expand = 0.05) %>%
+    dodgr::weight_streetnet (wt_profile = "foot") # or whatever
+verts <- moveability (streetnet = net)
+```
+
+The result can be directly viewed with
+[`mapdeck`](https://github.com/SymbolixAU/mapdeck) with the following
+code:
 
 ``` r
 library (mapdeck)
 set_token (Sys.getenv ("MAPBOX_TOKEN"))
 loc <- c (mean (verts$x), mean (verts$y))
-verts$d <- 20 * verts$d / max (verts$d)
+verts$m <- 20 * verts$m / max (verts$m)
 mapdeck (style = 'mapbox://styles/mapbox/dark-v9',
          zoom = 12,
          location = loc) %>%
@@ -52,7 +63,7 @@ mapdeck (style = 'mapbox://styles/mapbox/dark-v9',
               lon = "x",
               lat = "y",
               radius = 10,
-              fill_colour = "d",
+              fill_colour = "m",
               palette = "inferno")
 ```
 
