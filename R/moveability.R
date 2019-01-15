@@ -37,11 +37,6 @@ moveability <- function (city = NULL, streetnet = NULL, d_threshold = 1,
     netc_w <- netc$graph
     netc_w$d <- netc_w$d_weighted
 
-    d <- move_dists (netc_w, from = verts$id, quiet = quiet)
-    d [is.na (d)] <- 0
-    verts$m <- rowSums (d)
-    
-    verts <- verts [which (verts$component == 1), ]
-    verts$component <- verts$n <- NULL
+    verts$m <- move_dists (netc_w, from = verts$id, quiet = quiet)
     return (verts)
 }

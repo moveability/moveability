@@ -36,7 +36,8 @@ move_dists <- function (graph, from, d_threshold = 1, quiet = TRUE)
     graph$edge_id <- paste0 (graph$edge_id)
 
     if (!quiet)
-        message ("Calculating shortest paths from ", length (from),
+        message ("Calculating shortest paths from ",
+                 format (length (from), big.mark = ","),
                  " points ... ", appendLF = FALSE)
 
     d <- rcpp_get_sp_dists_par (graph, vert_map, from_index, d_threshold,
