@@ -10,9 +10,17 @@ Imports:
     dodgr,
     methods,
     osmdata,
-    pbapply
+    pbapply,
+    Rcpp (>= 0.12.6),
+    RcppParallel
 Suggests:
     knitr
+LinkingTo:
+    Rcpp,
+    RcppParallel
+SystemRequirements:
+    C++11,
+    GNU make
 VignetteBuilder: knitr
 NeedsCompilation: yes
 Encoding: UTF-8

@@ -1,0 +1,16 @@
+CXX_STD = CXX11
+PKG_CPPFLAGS=-I.
+
+PKG_LIBS += $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
+PKG_LIBS += $(shell ${R_HOME}/bin/Rscript -e "RcppParallel::RcppParallelLibs()")
+
+OBJ_HEAPS = heaps/bheap.o
+OBJ_SRC = dgraph.o dijkstra.o graph.o RcppExports.o run_sp.o sf-as-network.o
+OBJECTS = $(OBJ_HEAPS) $(OBJ_SRC)
+
+.PHONY: all clean
+
+all: $(SHLIB) $(clean)
+
+clean: $(SHLIB)
+	rm -rf $(OBJECTS)

@@ -4,4 +4,7 @@
 #'
 #' @name moveability
 #' @docType package
+#' @importFrom Rcpp evalCpp
+#' @importFrom RcppParallel RcppParallelLibs
+#' @useDynLib moveability, .registration = TRUE
 NULL
