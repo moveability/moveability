@@ -68,6 +68,7 @@ mapdeck (style = 'mapbox://styles/mapbox/dark-v9',
               lon = "x",
               lat = "y",
               radius = 10,
-              fill_colour = "m")
+              fill_colour = "m",
+              palette = "inferno")
 ```
 ![](demo.png)
