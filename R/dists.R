@@ -2,65 +2,21 @@
 #'
 #' Calculate matrix of pair-wise distances between points.
 #'
-#' @param graph `data.frame` or equivalent object representing the network
-#' graph (see Details)
-#' @param from Vector or matrix of points **from** which route distances are to
-#' be calculated (see Details)
-#' @param to Vector or matrix of points **to** which route distances are to be
-#' calculated (see Details)
-#' @param wt_profile Name of weighting profile for street networks (one of foot,
-#' horse, wheelchair, bicycle, moped, motorcycle, motorcar, goods, hgv, psv).
-#' @param expand Only when `graph` not given, the multiplicative factor by
-#' which to expand the street network surrounding the points defined by
-#' `from` and/or `to`.
-#' @param parallel If `TRUE`, perform routing calculation in parallel (see
-#' details)
+#' @param graph An `dodgr_streetnet` object
+#' @param from Vector of points from which moveability statistics are to be be
+#' calculated.
 #' @param quiet If `FALSE`, display progress messages on screen.
-#' @return square matrix of distances between nodes
-#'
-#' @note `graph` must minimally contain three columns of `from`,
-#' `to`, `dist`. If an additional column named `weight` or
-#' `wt` is present, shortest paths are calculated according to values
-#' specified in that column; otherwise according to `dist` values. Either
-#' way, final distances between `from` and `to` points are calculated
-#' according to values of `dist`. That is, paths between any pair of points
-#' will be calculated according to the minimal total sum of `weight`
-#' values (if present), while reported distances will be total sums of
-#' `dist` values.
-#'
-#' The `from` and `to` columns of `graph` may be either single
-#' columns of numeric or character values specifying the numbers or names of
-#' graph vertices, or combinations to two columns specifying geographical
-#' (longitude and latitude) coordinates. In the latter case, almost any sensible
-#' combination of names will be accepted (for example, `fromx, fromy`,
-#' `from_x, from_y`, or `fr_lat, fr_lon`.)
-#'
-#' `from` and `to` values can be either two-column matrices of
-#' equivalent of longitude and latitude coordinates, or else single columns
-#' precisely matching node numbers or names given in `graph$from` or
-#' `graph$to`. If `to` is missing, pairwise distances are calculated
-#' between all points specified in `from`. If neither `from` nor
-#' `to` are specified, pairwise distances are calculated between all nodes
-#' in `graph`.
-#'
-#' Calculations in parallel (`parallel = TRUE`) ought very generally be
-#' advantageous. For small graphs, Calculating distances in parallel is likely
-#' to offer relatively little gain in speed, but increases from parallel
-#' computation will generally markedly increase with increasing graph sizes.
+#' @return Vector of moveability values for each point in `from`
 #'
 #' @export 
 #' @examples
 #' # A larger example from the included [hampi()] data.
 #' graph <- dodgr::weight_streetnet (dodgr::hampi)
 #' from <- sample (graph$from_id, size = 100)
-#' to <- sample (graph$to_id, size = 50)
-#' d <- move_dists (graph, from = from, to = to)
+#' d <- move_dists (graph, from = from)
 #' # d is a 100-by-50 matrix of distances between `from` and `to`
-move_dists <- function (graph, from, to, wt_profile = "bicycle", expand = 0,
-                         parallel = TRUE, quiet = TRUE)
+move_dists <- function (graph, from, quiet = TRUE)
 {
-    heap <- "BHeap"
-
     gr_cols <- c (2, 3, 6, 9, 10, 4, 5, 7, 8, 13)
     names (gr_cols) <- c ("edge_id", "from", "to", "d", "w",
                           "xfr", "yfr", "xto", "yto", "component")
@@ -70,11 +26,7 @@ move_dists <- function (graph, from, to, wt_profile = "bicycle", expand = 0,
     index_id <- get_index_id_cols (graph, gr_cols, vert_map, from)
     from_index <- index_id$index - 1 # 0-based
     from_id <- index_id$id
-    index_id <- get_index_id_cols (graph, gr_cols, vert_map, to)
-    to_index <- index_id$index - 1 # 0-based
-    to_id <- index_id$id
 
-    #graph <- dodgr:::convert_graph (graph, gr_cols)
     graph$geom_num <- graph$from_lon <- graph$from_lat <-
         graph$to_lon <- graph$to_lat <- graph$highway <-
         graph$way_id <- graph$component <- NULL
@@ -84,32 +36,20 @@ move_dists <- function (graph, from, to, wt_profile = "bicycle", expand = 0,
     if (!quiet)
         message ("Calculating shortest paths ... ", appendLF = FALSE)
 
-    flip <- FALSE
-    if (length (from_index) > length (to_index))
-    {
-        flip <- TRUE
-        graph <- flip_graph (graph)
-        temp <- from_index
-        from_index <- to_index
-        to_index <- temp
-    }
+    d <- rcpp_get_sp_dists_par (graph, vert_map, from_index,
+                                heap_type = "BHeap")
 
-    if (parallel)
-        d <- rcpp_get_sp_dists_par (graph, vert_map, from_index, to_index, heap)
-    else
-        d <- rcpp_get_sp_dists (graph, vert_map, from_index, to_index, heap)
+    #if (flip)
+    #    d <- t (d)
 
-    if (flip)
-        d <- t (d)
-
-    if (!is.null (from_id))
-        rownames (d) <- from_id
-    else
-        rownames (d) <- vert_map$vert
-    if (!is.null (to_id))
-        colnames (d) <- to_id
-    else
-        colnames (d) <- vert_map$vert
+    #if (!is.null (from_id))
+    #    rownames (d) <- from_id
+    #else
+    #    rownames (d) <- vert_map$vert
+    #if (!is.null (to_id))
+    #    colnames (d) <- to_id
+    #else
+    #    colnames (d) <- vert_map$vert
 
     if (!quiet)
         message ("done.")
@@ -122,11 +62,9 @@ move_dists <- function (graph, from, to, wt_profile = "bicycle", expand = 0,
 #' Alias for \link{move_dists}
 #' @inherit move_dists
 #' @export
-move_distances <- function (graph, from, to, wt_profile = "bicycle", expand = 0,
-                         parallel = TRUE, quiet = TRUE)
+move_distances <- function (graph, from, quiet = TRUE)
 {
-    move_dists (graph, from, to, wt_profile = wt_profile, expand = expand,
-                parallel = parallel, quiet = quiet)
+    move_dists (graph, from, quiet = quiet)
 }
 
 #' get_index_id_cols

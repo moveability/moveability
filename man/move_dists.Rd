@@ -4,73 +4,26 @@
 \alias{move_dists}
 \title{movedists}
 \usage{
-move_dists(graph, from, to, wt_profile = "bicycle", expand = 0,
-  parallel = TRUE, quiet = TRUE)
+move_dists(graph, from, quiet = TRUE)
 }
 \arguments{
-\item{graph}{\code{data.frame} or equivalent object representing the network
-graph (see Details)}
+\item{graph}{An \code{dodgr_streetnet} object}
 
-\item{from}{Vector or matrix of points \strong{from} which route distances are to
-be calculated (see Details)}
-
-\item{to}{Vector or matrix of points \strong{to} which route distances are to be
-calculated (see Details)}
-
-\item{wt_profile}{Name of weighting profile for street networks (one of foot,
-horse, wheelchair, bicycle, moped, motorcycle, motorcar, goods, hgv, psv).}
-
-\item{expand}{Only when \code{graph} not given, the multiplicative factor by
-which to expand the street network surrounding the points defined by
-\code{from} and/or \code{to}.}
-
-\item{parallel}{If \code{TRUE}, perform routing calculation in parallel (see
-details)}
+\item{from}{Vector of points from which moveability statistics are to be be
+calculated.}
 
 \item{quiet}{If \code{FALSE}, display progress messages on screen.}
 }
 \value{
-square matrix of distances between nodes
+Vector of moveability values for each point in \code{from}
 }
 \description{
 Calculate matrix of pair-wise distances between points.
-}
-\note{
-\code{graph} must minimally contain three columns of \code{from},
-\code{to}, \code{dist}. If an additional column named \code{weight} or
-\code{wt} is present, shortest paths are calculated according to values
-specified in that column; otherwise according to \code{dist} values. Either
-way, final distances between \code{from} and \code{to} points are calculated
-according to values of \code{dist}. That is, paths between any pair of points
-will be calculated according to the minimal total sum of \code{weight}
-values (if present), while reported distances will be total sums of
-\code{dist} values.
-
-The \code{from} and \code{to} columns of \code{graph} may be either single
-columns of numeric or character values specifying the numbers or names of
-graph vertices, or combinations to two columns specifying geographical
-(longitude and latitude) coordinates. In the latter case, almost any sensible
-combination of names will be accepted (for example, \code{fromx, fromy},
-\code{from_x, from_y}, or \code{fr_lat, fr_lon}.)
-
-\code{from} and \code{to} values can be either two-column matrices of
-equivalent of longitude and latitude coordinates, or else single columns
-precisely matching node numbers or names given in \code{graph$from} or
-\code{graph$to}. If \code{to} is missing, pairwise distances are calculated
-between all points specified in \code{from}. If neither \code{from} nor
-\code{to} are specified, pairwise distances are calculated between all nodes
-in \code{graph}.
-
-Calculations in parallel (\code{parallel = TRUE}) ought very generally be
-advantageous. For small graphs, Calculating distances in parallel is likely
-to offer relatively little gain in speed, but increases from parallel
-computation will generally markedly increase with increasing graph sizes.
 }
 \examples{
 # A larger example from the included [hampi()] data.
 graph <- dodgr::weight_streetnet (dodgr::hampi)
 from <- sample (graph$from_id, size = 100)
-to <- sample (graph$to_id, size = 50)
-d <- move_dists (graph, from = from, to = to)
+d <- move_dists (graph, from = from)
 # d is a 100-by-50 matrix of distances between `from` and `to`
 }

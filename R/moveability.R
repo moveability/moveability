@@ -12,7 +12,7 @@
 moveability <- function (city = NULL, streetnet = NULL, quiet = FALSE)
 {
     if (is.null (city) & is.null (streetnet))
-        stop ("city must be specified")
+        stop ("city or streetnet must be specified")
     if (!is.null (city) & !is.null (streetnet))
         message ("City will be ignored, as streetnet has been provided")
 
@@ -20,7 +20,7 @@ moveability <- function (city = NULL, streetnet = NULL, quiet = FALSE)
         streetnet <- dodgr::dodgr_streetnet (bbox = city, expand = 0.05)
     else if (!(methods::is (streetnet, "sf") |
                methods::is (streetnet, "osmdata") |
-               methods::is (streetnet, "dodgr")))
+               methods::is (streetnet, "dodgr_streetnet")))
         stop ("streetnet must be of format sf, osmdata, or dodgr")
        
     if (methods::is (streetnet, "osmdata"))
@@ -31,15 +31,16 @@ moveability <- function (city = NULL, streetnet = NULL, quiet = FALSE)
     netc <- dodgr::dodgr_contract_graph (streetnet)
     verts <- dodgr::dodgr_vertices (netc$graph)
     ids_all <- verts$id
-    ids <- split (verts, cut (verts$n,
-                              breaks = ceiling (nrow (verts) / 1000)))
+    if (nrow (verts) > 5000)
+        ids <- split (verts, cut (verts$n,
+                                  breaks = ceiling (nrow (verts) / 1000)))
 
     netc_w <- netc$graph
     netc_w$d <- netc_w$d_weighted
 
-    get1d <- function (netc_w, from, to)
+    get1d <- function (netc_w, from)
     {
-        d <- dodgr::dodgr_dists (netc_w, from = from, to = to)
+        d <- move_dists (netc_w, from = from)
 
         # fixed walking radius of 1km for the moment
         d [is.na (d)] <- d [d > 1] <- 0

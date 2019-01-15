@@ -30,7 +30,6 @@ std::shared_ptr <HeapDesc> run_sp::getHeapImpl(const std::string& heap_type)
 struct OneDist : public RcppParallel::Worker
 {
     RcppParallel::RVector <int> dp_fromi;
-    const Rcpp::IntegerVector toi;
     const size_t nverts;
     const std::shared_ptr <DGraph> g;
     const std::string heap_type;
@@ -40,12 +39,11 @@ struct OneDist : public RcppParallel::Worker
     // constructor
     OneDist (
             const Rcpp::IntegerVector fromi,
-            const Rcpp::IntegerVector toi_in,
             const size_t nverts_in,
             const std::shared_ptr <DGraph> g_in,
             const std::string & heap_type_in,
             Rcpp::NumericMatrix dout_in) :
-        dp_fromi (fromi), toi (toi_in), nverts (nverts_in),
+        dp_fromi (fromi), nverts (nverts_in),
         g (g_in), heap_type (heap_type_in), dout (dout_in)
     {
     }
@@ -66,18 +64,14 @@ struct OneDist : public RcppParallel::Worker
             std::fill (w.begin (), w.end (), INFINITE_DOUBLE);
             std::fill (d.begin (), d.end (), INFINITE_DOUBLE);
 
-            if (heap_type.find ("set") == std::string::npos)
-                dijkstra->run (d, w, prev,
-                        static_cast <unsigned int> (dp_fromi [i]));
-            else
-                dijkstra->run_set (d, w, prev,
-                        static_cast <unsigned int> (dp_fromi [i]));
-            for (long int j = 0; j < toi.size (); j++)
+            dijkstra->run (d, w, prev,
+                    static_cast <unsigned int> (dp_fromi [i]));
+            for (long int j = 0; j < nverts; j++)
             {
-                if (w [static_cast <size_t> (toi [j])] < INFINITE_DOUBLE)
+                if (w [static_cast <size_t> (j)] < INFINITE_DOUBLE)
                 {
                     dout (i, static_cast <size_t> (j)) =
-                        d [static_cast <size_t> (toi [j])];
+                        d [static_cast <size_t> (j)];
                 }
             }
         }
@@ -100,25 +94,7 @@ size_t run_sp::make_vert_map (const Rcpp::DataFrame &vert_map_in,
     return (nverts);
 }
 
-size_t run_sp::get_fromi_toi (const Rcpp::DataFrame &vert_map_in,
-        Rcpp::IntegerVector &fromi, Rcpp::IntegerVector &toi,
-        Rcpp::NumericVector &id_vec)
-{
-    if (fromi [0] < 0) // use all vertices
-    {
-        id_vec = vert_map_in ["id"];
-        fromi = id_vec;
-    }
-    if (toi [0] < 0) // use all vertices
-    {
-        if (id_vec.size () == 0)
-            id_vec = vert_map_in ["id"];
-        toi = id_vec;
-    }
-    return static_cast <size_t> (fromi.size ());
-}
-
-size_t get_fromi (const Rcpp::DataFrame &vert_map_in,
+size_t run_sp::get_fromi (const Rcpp::DataFrame &vert_map_in,
         Rcpp::IntegerVector &fromi, Rcpp::NumericVector &id_vec)
 {
     if (fromi [0] < 0) // use all vertices
@@ -161,12 +137,10 @@ void run_sp::make_vert_to_edge_maps (const std::vector <std::string> &from,
 Rcpp::NumericMatrix rcpp_get_sp_dists_par (const Rcpp::DataFrame graph,
         const Rcpp::DataFrame vert_map_in,
         Rcpp::IntegerVector fromi,
-        Rcpp::IntegerVector toi,
         const std::string& heap_type)
 {
     Rcpp::NumericVector id_vec;
-    size_t nfrom = run_sp::get_fromi_toi (vert_map_in, fromi, toi, id_vec);
-    size_t nto = static_cast <size_t> (toi.size ());
+    size_t nfrom = run_sp::get_fromi (vert_map_in, fromi, id_vec);
 
     std::vector <std::string> from = graph ["from"];
     std::vector <std::string> to = graph ["to"];
@@ -183,13 +157,13 @@ Rcpp::NumericMatrix rcpp_get_sp_dists_par (const Rcpp::DataFrame graph,
     std::shared_ptr <DGraph> g = std::make_shared <DGraph> (nverts);
     inst_graph (g, nedges, vert_map, from, to, dist, wt);
 
-    Rcpp::NumericVector na_vec = Rcpp::NumericVector (nfrom * nto,
+    Rcpp::NumericVector na_vec = Rcpp::NumericVector (nfrom * nverts,
             Rcpp::NumericVector::get_na ());
     Rcpp::NumericMatrix dout (static_cast <int> (nfrom),
-            static_cast <int> (nto), na_vec.begin ());
+            static_cast <int> (nverts), na_vec.begin ());
 
     // Create parallel worker
-    OneDist one_dist (fromi, toi, nverts, g, heap_type, dout);
+    OneDist one_dist (fromi, nverts, g, heap_type, dout);
 
     RcppParallel::parallelFor (0, static_cast <size_t> (fromi.length ()),
             one_dist);
@@ -204,12 +178,11 @@ Rcpp::NumericMatrix rcpp_get_sp_dists_par (const Rcpp::DataFrame graph,
 Rcpp::NumericMatrix rcpp_get_sp_dists (const Rcpp::DataFrame graph,
         const Rcpp::DataFrame vert_map_in,
         Rcpp::IntegerVector fromi,
-        Rcpp::IntegerVector toi,
         const std::string& heap_type)
 {
     Rcpp::NumericVector id_vec;
-    size_t nfrom = run_sp::get_fromi_toi (vert_map_in, fromi, toi, id_vec);
-    size_t nto = static_cast <size_t> (toi.size ());
+    
+    size_t nfrom = run_sp::get_fromi (vert_map_in, fromi, id_vec);
 
     std::vector <std::string> from = graph ["from"];
     std::vector <std::string> to = graph ["to"];
@@ -236,10 +209,10 @@ Rcpp::NumericMatrix rcpp_get_sp_dists (const Rcpp::DataFrame graph,
     dijkstra->init (g); // specify the graph
 
     // initialise dout matrix to NA
-    Rcpp::NumericVector na_vec = Rcpp::NumericVector (nfrom * nto,
+    Rcpp::NumericVector na_vec = Rcpp::NumericVector (nfrom * nverts,
             Rcpp::NumericVector::get_na ());
     Rcpp::NumericMatrix dout (static_cast <int> (nfrom),
-            static_cast <int> (nto), na_vec.begin ());
+            static_cast <int> (nverts), na_vec.begin ());
 
     for (unsigned int v = 0; v < nfrom; v++)
     {
@@ -248,12 +221,11 @@ Rcpp::NumericMatrix rcpp_get_sp_dists (const Rcpp::DataFrame graph,
         std::fill (d.begin(), d.end(), INFINITE_DOUBLE);
 
         dijkstra->run (d, w, prev, static_cast <unsigned int> (fromi [v]));
-        for (unsigned int vi = 0; vi < nto; vi++)
+        for (unsigned int vi = 0; vi < nverts; vi++)
         {
-            //if (toi [vi] < INFINITE_INT)
-            if (w [static_cast <size_t> (toi [vi])] < INFINITE_DOUBLE)
+            if (w [static_cast <size_t> (vi)] < INFINITE_DOUBLE)
             {
-                dout (v, vi) = d [static_cast <size_t> (toi [vi])];
+                dout (v, vi) = d [static_cast <size_t> (vi)];
             }
         }
     }
