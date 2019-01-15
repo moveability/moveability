@@ -6,7 +6,8 @@
 \alias{moveability-package}
 \title{moveability.}
 \usage{
-moveability(city = NULL, streetnet = NULL, quiet = FALSE)
+moveability(city = NULL, streetnet = NULL, d_threshold = 1,
+  quiet = FALSE)
 }
 \arguments{
 \item{city}{City for which moveability statistics are to be calcualted.}
@@ -14,6 +15,9 @@ moveability(city = NULL, streetnet = NULL, quiet = FALSE)
 \item{streetnet}{Instead of city, a pre-downloaded or prepared street network
 can be submitted. Must be either an \pkg{sf}, \pkg{osmdata} or \pkg{dodgr}
 format.}
+
+\item{d_threshold}{Distance threshold below which distances are to be
+aggreagted (in kilometres).}
 
 \item{quiet}{If \code{TRUE}, dump progress information to screen.}
 }

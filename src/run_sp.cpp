@@ -35,7 +35,7 @@ struct OneDist : public RcppParallel::Worker
     const std::shared_ptr <DGraph> g;
     const std::string heap_type;
 
-    RcppParallel::RMatrix <double> dout;
+    RcppParallel::RVector <double> dout;
 
     // constructor
     OneDist (
@@ -44,7 +44,7 @@ struct OneDist : public RcppParallel::Worker
             const double d_threshold_in,
             const std::shared_ptr <DGraph> g_in,
             const std::string & heap_type_in,
-            Rcpp::NumericMatrix dout_in) :
+            Rcpp::NumericVector dout_in) :
         dp_fromi (fromi), nverts (nverts_in), d_threshold (d_threshold_in),
         g (g_in), heap_type (heap_type_in), dout (dout_in)
     {
@@ -70,10 +70,9 @@ struct OneDist : public RcppParallel::Worker
                     static_cast <unsigned int> (dp_fromi [i]));
             for (long int j = 0; j < nverts; j++)
             {
-                if (w [static_cast <size_t> (j)] < INFINITE_DOUBLE)
+                if (w [static_cast <size_t> (j)] < d_threshold)
                 {
-                    dout (i, static_cast <size_t> (j)) =
-                        d [static_cast <size_t> (j)];
+                    dout [i] += d [static_cast <size_t> (j)];
                 }
             }
         }
@@ -136,7 +135,7 @@ void run_sp::make_vert_to_edge_maps (const std::vector <std::string> &from,
 //'
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::NumericMatrix rcpp_get_sp_dists_par (const Rcpp::DataFrame graph,
+Rcpp::NumericVector rcpp_get_sp_dists_par (const Rcpp::DataFrame graph,
         const Rcpp::DataFrame vert_map_in,
         Rcpp::IntegerVector fromi,
         const double d_threshold,
@@ -160,10 +159,7 @@ Rcpp::NumericMatrix rcpp_get_sp_dists_par (const Rcpp::DataFrame graph,
     std::shared_ptr <DGraph> g = std::make_shared <DGraph> (nverts);
     inst_graph (g, nedges, vert_map, from, to, dist, wt);
 
-    Rcpp::NumericVector na_vec = Rcpp::NumericVector (nfrom * nverts,
-            Rcpp::NumericVector::get_na ());
-    Rcpp::NumericMatrix dout (static_cast <int> (nfrom),
-            static_cast <int> (nverts), na_vec.begin ());
+    Rcpp::NumericVector dout (static_cast <int> (nfrom), 0.0);
 
     // Create parallel worker
     OneDist one_dist (fromi, nverts, d_threshold, g, heap_type, dout);
@@ -171,67 +167,5 @@ Rcpp::NumericMatrix rcpp_get_sp_dists_par (const Rcpp::DataFrame graph,
     RcppParallel::parallelFor (0, static_cast <size_t> (fromi.length ()),
             one_dist);
     
-    return (dout);
-}
-
-//' rcpp_get_sp_dists
-//'
-//' @noRd
-// [[Rcpp::export]]
-Rcpp::NumericMatrix rcpp_get_sp_dists (const Rcpp::DataFrame graph,
-        const Rcpp::DataFrame vert_map_in,
-        Rcpp::IntegerVector fromi,
-        const double d_threshold,
-        const std::string& heap_type)
-{
-    Rcpp::NumericVector id_vec;
-    
-    size_t nfrom = run_sp::get_fromi (vert_map_in, fromi, id_vec);
-
-    std::vector <std::string> from = graph ["from"];
-    std::vector <std::string> to = graph ["to"];
-    std::vector <double> dist = graph ["d"];
-    std::vector <double> wt = graph ["w"];
-
-    unsigned int nedges = static_cast <unsigned int> (graph.nrow ());
-    std::map <std::string, unsigned int> vert_map;
-    std::vector <std::string> vert_map_id = vert_map_in ["vert"];
-    std::vector <unsigned int> vert_map_n = vert_map_in ["id"];
-    size_t nverts = run_sp::make_vert_map (vert_map_in, vert_map_id,
-            vert_map_n, vert_map);
-
-    std::shared_ptr<DGraph> g = std::make_shared<DGraph>(nverts);
-    inst_graph (g, nedges, vert_map, from, to, dist, wt);
-
-    std::shared_ptr <Dijkstra> dijkstra = std::make_shared <Dijkstra> (nverts,
-            *run_sp::getHeapImpl(heap_type), g);
-
-    std::vector<double> w (nverts);
-    std::vector<double> d (nverts);
-    std::vector<int> prev (nverts);
-
-    dijkstra->init (g); // specify the graph
-
-    // initialise dout matrix to NA
-    Rcpp::NumericVector na_vec = Rcpp::NumericVector (nfrom * nverts,
-            Rcpp::NumericVector::get_na ());
-    Rcpp::NumericMatrix dout (static_cast <int> (nfrom),
-            static_cast <int> (nverts), na_vec.begin ());
-
-    for (unsigned int v = 0; v < nfrom; v++)
-    {
-        Rcpp::checkUserInterrupt ();
-        std::fill (w.begin(), w.end(), INFINITE_DOUBLE);
-        std::fill (d.begin(), d.end(), INFINITE_DOUBLE);
-
-        dijkstra->run (d, w, prev, static_cast <unsigned int> (fromi [v]));
-        for (unsigned int vi = 0; vi < nverts; vi++)
-        {
-            if (w [static_cast <size_t> (vi)] < INFINITE_DOUBLE)
-            {
-                dout (v, vi) = d [static_cast <size_t> (vi)];
-            }
-        }
-    }
     return (dout);
 }

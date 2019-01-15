@@ -36,16 +36,12 @@ move_dists <- function (graph, from, d_threshold = 1, quiet = TRUE)
     graph$edge_id <- paste0 (graph$edge_id)
 
     if (!quiet)
-        message ("Calculating shortest paths ... ", appendLF = FALSE)
+        message ("Calculating shortest paths from ", length (from),
+                 " points ... ", appendLF = FALSE)
 
     d <- rcpp_get_sp_dists_par (graph, vert_map, from_index, d_threshold,
                                 heap_type = "BHeap")
-
-    if (!is.null (from_id))
-        rownames (d) <- from_id
-    else
-        rownames (d) <- vert_map$vert
-    colnames (d) <- vert_map$vert
+    names (d) <- from_id
 
     if (!quiet)
         message ("done.")

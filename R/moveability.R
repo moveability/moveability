@@ -6,10 +6,13 @@
 #' @param streetnet Instead of city, a pre-downloaded or prepared street network
 #' can be submitted. Must be either an \pkg{sf}, \pkg{osmdata} or \pkg{dodgr}
 #' format.
+#' @param d_threshold Distance threshold below which distances are to be
+#' aggreagted (in kilometres).
 #' @param quiet If `TRUE`, dump progress information to screen.
 #' @return Nothing (open interactive map)
 #' @export
-moveability <- function (city = NULL, streetnet = NULL, quiet = FALSE)
+moveability <- function (city = NULL, streetnet = NULL, d_threshold = 1,
+                         quiet = FALSE)
 {
     if (is.null (city) & is.null (streetnet))
         stop ("city or streetnet must be specified")
@@ -30,26 +33,14 @@ moveability <- function (city = NULL, streetnet = NULL, quiet = FALSE)
         streetnet <- dodgr::weight_streetnet (streetnet, wt_profile = "foot")
     netc <- dodgr::dodgr_contract_graph (streetnet)
     verts <- dodgr::dodgr_vertices (netc$graph)
-    ids_all <- verts$id
-    if (nrow (verts) > 5000)
-        ids <- split (verts, cut (verts$n,
-                                  breaks = ceiling (nrow (verts) / 1000)))
 
     netc_w <- netc$graph
     netc_w$d <- netc_w$d_weighted
 
-    get1d <- function (netc_w, from)
-    {
-        d <- move_dists (netc_w, from = from)
-
-        # fixed walking radius of 1km for the moment
-        d [is.na (d)] <- d [d > 1] <- 0
-        rowSums (d)
-    }
+    d <- move_dists (netc_w, from = verts$id, quiet = quiet)
+    d [is.na (d)] <- 0
+    verts$m <- rowSums (d)
     
-    m <- pbapply::pblapply (seq (ids), function (i)
-                            get1d (netc_w, ids [[i]]$id, ids_all))
-    verts$m <- do.call (c, m)
     verts <- verts [which (verts$component == 1), ]
     verts$component <- verts$n <- NULL
     return (verts)

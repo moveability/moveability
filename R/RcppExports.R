@@ -8,13 +8,6 @@ rcpp_get_sp_dists_par <- function(graph, vert_map_in, fromi, d_threshold, heap_t
     .Call(`_moveability_rcpp_get_sp_dists_par`, graph, vert_map_in, fromi, d_threshold, heap_type)
 }
 
-#' rcpp_get_sp_dists
-#'
-#' @noRd
-rcpp_get_sp_dists <- function(graph, vert_map_in, fromi, d_threshold, heap_type) {
-    .Call(`_moveability_rcpp_get_sp_dists`, graph, vert_map_in, fromi, d_threshold, heap_type)
-}
-
 #' rcpp_sf_as_network
 #'
 #' Return OSM data from Simple Features format input
