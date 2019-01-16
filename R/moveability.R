@@ -20,8 +20,9 @@ moveability <- function (city = NULL, streetnet = NULL, d_threshold = 1,
         message ("City will be ignored, as streetnet has been provided")
 
     if (!is.null (city))
-        streetnet <- dodgr::dodgr_streetnet (bbox = city, expand = 0.05)
-    else if (!(methods::is (streetnet, "sf") |
+    {
+        streetnet <- mv_streetnet (city = city, quiet = quiet)
+    } else if (!(methods::is (streetnet, "sf") |
                methods::is (streetnet, "osmdata") |
                methods::is (streetnet, "dodgr_streetnet")))
         stop ("streetnet must be of format sf, osmdata, or dodgr")
@@ -34,9 +35,29 @@ moveability <- function (city = NULL, streetnet = NULL, d_threshold = 1,
     netc <- dodgr::dodgr_contract_graph (streetnet)
     verts <- dodgr::dodgr_vertices (netc$graph)
 
-    netc_w <- netc$graph
-    netc_w$d <- netc_w$d_weighted
-
-    verts$m <- move_dists (netc_w, from = verts$id, quiet = quiet)
+    verts$m <- move_stats (netc$graph, from = verts$id, quiet = quiet)
     return (verts)
+}
+
+# largely from dodgr::dodgr_streetnet
+mv_streetnet <- function (city = NULL, quiet)
+{
+    is_poly <- TRUE
+    bb_poly <- osmdata::getbb (city, format_out = "polygon")
+    if (is.list (bb_poly))
+    {
+        bb_poly <- bb_poly [[1]]
+    } else if (nrow (bb) == 2)
+    {
+        is_poly <- FALSE
+    }
+    bb <- apply (bb_poly, 2, range)
+        
+    qq <- osmdata::opq (bb)
+    qq <- osmdata::add_osm_feature (qq, key = "highway")
+    dat <- osmdata::osmdata_sf (qq, quiet = quiet)
+    dat <- osmdata::osm_poly2line (dat)
+    if (is_poly)
+        dat <- osmdata::trim_osmdata (dat, bb_poly)
+    return (dat$osm_lines)
 }

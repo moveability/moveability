@@ -1,23 +1,25 @@
-#' movedists
+#' move_stats
 #'
-#' Calculate matrix of pair-wise distances between points.
+#' Calculate vector of moveability statistics for a given input street network.
 #'
 #' @param graph An `dodgr_streetnet` object
 #' @param from Vector of points from which moveability statistics are to be be
 #' calculated.
-#' @param d_threshold Distance threshold below which distances are to be
-#' aggreagted (in kilometres).
+#' @param d_threshold Distance threshold below which moveability statistics are
+#' to be aggreagted (in kilometres).
 #' @param quiet If `FALSE`, display progress messages on screen.
-#' @return Vector of moveability values for each point in `from`
+#' @return Vector of moveability values for each point in `from`, with
+#' moveability quantified as `$m`.
 #'
 #' @export 
 #' @examples
 #' # A larger example from the included [hampi()] data.
 #' graph <- dodgr::weight_streetnet (dodgr::hampi)
 #' from <- sample (graph$from_id, size = 100)
-#' d <- move_dists (graph, from = from)
-#' # d is a 100-by-50 matrix of distances between `from` and `to`
-move_dists <- function (graph, from, d_threshold = 1, quiet = TRUE)
+#' d <- move_stats (graph, from = from)
+#' # d is a `data.frame` of the coordinates of all `from` points and
+#' # correponding moveability statisics 
+move_stats <- function (graph, from, d_threshold = 1, quiet = TRUE)
 {
     gr_cols <- c (2, 3, 6, 9, 10, 4, 5, 7, 8, 13)
     names (gr_cols) <- c ("edge_id", "from", "to", "d", "w",
@@ -52,12 +54,12 @@ move_dists <- function (graph, from, d_threshold = 1, quiet = TRUE)
 
 #' move_distances
 #'
-#' Alias for \link{move_dists}
-#' @inherit move_dists
+#' Alias for \link{move_stats}
+#' @inherit move_stats
 #' @export
-move_distances <- function (graph, from, quiet = TRUE)
+move_statistics <- function (graph, from, quiet = TRUE)
 {
-    move_dists (graph, from, quiet = quiet)
+    move_stats (graph, from, quiet = quiet)
 }
 
 #' get_index_id_cols
@@ -94,7 +96,7 @@ get_index_id_cols <- function (graph, gr_cols, vert_map, pts)
 #' Get the ID columns or rownames from a matrix or data.frame of from or to
 #' points
 #'
-#' @param pts The `from` or `to` args passed to `move_dists`
+#' @param pts The `from` or `to` args passed to `move_stats`
 #' @return Character vector of names of points, if they exist in `pts`
 #' @noRd
 get_id_cols <- function (pts)
@@ -131,7 +133,7 @@ make_vert_map <- function (graph, gr_cols)
 
 #' get_pts_index
 #'
-#' Convert `from` or `to` args of `move_dists` to indices into
+#' Convert `from` or `to` args of `move_stats` to indices into
 #' `vert_map`
 #'
 #' @param graph A dodgr graph
