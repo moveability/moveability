@@ -47,7 +47,7 @@ mv_streetnet <- function (city = NULL, quiet)
     if (is.list (bb_poly))
     {
         bb_poly <- bb_poly [[1]]
-    } else if (nrow (bb) == 2)
+    } else if (nrow (bb_poly) == 2)
     {
         is_poly <- FALSE
     }
