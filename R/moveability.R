@@ -155,3 +155,59 @@ polygons_to_sf <- function (polygons)
     attr (polygons, "crs") <- crs
     return (polygons)
 }
+
+#' moveability_to_lines
+#'
+#' Project moveability statistics from \link{moveability} on to lines
+#' of street network.
+#'
+#' @param m Result of \link{moveability} function
+#' @param streetnet Street network in either \pkg{sf}, \pkg{osmdata} or \pkg{dodgr}
+#' format.
+#' @return \pkg{sf} collection of `LINE` objects of the street network,
+#' with moveability statistics averaged between the two end points of each line
+#' segment.
+#' @examples
+#' m <- moveability (streetnet = dodgr::hampi)
+#' p <- moveability_to_lines (m = m, streetnet = dodgr::hampi)
+#' # psf <- sf::st_sf (p$dat, geometry = p$geometry)
+#' @export
+moveability_to_lines <- function (m, streetnet)
+{
+    if (methods::is (streetnet, "osmdata"))
+        streetnet <- osmdata::osm_poly2line (streetnet)$osm_lines
+    if (!methods::is (streetnet, "dodgr_streetnet"))
+        streetnet <- dodgr::weight_streetnet (streetnet, wt_profile = 1)
+
+    graphc <- dodgr::dodgr_contract_graph (streetnet)
+    v <- dodgr::dodgr_vertices (graphc$graph)
+    m <- m [which (m$id %in% v$id), ]
+    m_from <- m$m [match (graphc$graph$from_id, m$id)]
+    m_to <- m$m [match (graphc$graph$to_id, m$id)]
+    mvals <- apply (cbind (m_from, m_to), 1, function (i)
+                    mean (i, na.rm = TRUE))
+    mvals [is.nan (mvals)] <- NA
+    graphc$graph$flow <- mvals
+    graph <- uncontract_graph (graphc$graph, graphc$edge_map, streetnet)
+    graph <- graph [!is.na (graph$flow), ]
+    graph <- dodgr::merge_directed_flows (graph)
+    dodgr::dodgr_to_sfc (graph)
+}
+
+# direct copy from dodgr/R/flows.R
+# map contracted flows back onto full graph
+uncontract_graph <- function (graph, edge_map, graph_full)
+{
+    indx_to_full <- match (edge_map$edge_old, graph_full$edge_id)
+    indx_to_contr <- match (edge_map$edge_new, graph$edge_id)
+    # edge_map only has the contracted edges; flows from the original
+    # non-contracted edges also need to be inserted
+    edges <- graph$edge_id [which (!graph$edge_id %in% edge_map$edge_new)]
+    indx_to_full <- c (indx_to_full, match (edges, graph_full$edge_id))
+    indx_to_contr <- c (indx_to_contr, match (edges, graph$edge_id))
+    graph_full$flow <- 0
+    graph_full$flow [indx_to_full] <- graph$flow [indx_to_contr]
+
+    return (graph_full)
+}
+

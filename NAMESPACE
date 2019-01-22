@@ -3,6 +3,7 @@
 export(move_statistics)
 export(move_stats)
 export(moveability)
+export(moveability_to_lines)
 export(moveability_to_polygons)
 export(polygons_to_sf)
 importFrom(Rcpp,evalCpp)
