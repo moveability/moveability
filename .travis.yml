@@ -35,6 +35,9 @@ matrix:
           r: devel
           before_install: ''
           disable_homebrew: true
+        - os: linux # checking GDAL version >= 2.0.0... no -> sf not compatible
+          r: oldrel
+          dist: trusty
 
 notifications:
   email:
