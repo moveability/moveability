@@ -3,6 +3,8 @@
 export(move_statistics)
 export(move_stats)
 export(moveability)
+export(moveability_to_polygons)
+export(polygons_to_sf)
 importFrom(Rcpp,evalCpp)
 importFrom(RcppParallel,RcppParallelLibs)
 useDynLib(moveability, .registration = TRUE)

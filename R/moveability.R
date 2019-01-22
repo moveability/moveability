@@ -10,6 +10,8 @@
 #' aggreagted (in kilometres).
 #' @param quiet If `TRUE`, dump progress information to screen.
 #' @return Nothing (open interactive map)
+#' @examples
+#' m <- moveability (streetnet = dodgr::hampi)
 #' @export
 moveability <- function (city = NULL, streetnet = NULL, d_threshold = 1,
                          quiet = FALSE)
@@ -60,4 +62,96 @@ mv_streetnet <- function (city = NULL, quiet)
     if (is_poly)
         dat <- osmdata::trim_osmdata (dat, bb_poly)
     return (dat$osm_lines)
+}
+
+#' moveability_to_polygons
+#'
+#' Project moveability statistics from \link{moveability} on to polygonal blocks
+#' of street network, in order to plot polygons rather than points.
+#'
+#' @note This function may take a long time to execute, because of the
+#' calculation of fundamental cycles in the street network graph used to
+#' identify street blocks.
+#'
+#' @param m Result of \link{moveability} function
+#' @param streetnet Street network in either \pkg{sf}, \pkg{osmdata} or \pkg{dodgr}
+#' format.
+#' @return \pkg{sf} collection of `POLYGON` objects corresponding to street
+#' blocks, with average moveability statistics from all points defining that
+#' block.
+#' @examples
+#' m <- moveability (streetnet = dodgr::hampi)
+#' p <- moveability_to_polygons (m = m, streetnet = dodgr::hampi)
+#' @export
+moveability_to_polygons <- function (m, streetnet)
+{
+    if (methods::is (streetnet, "osmdata"))
+        streetnet <- osmdata::osm_poly2line (streetnet)$osm_lines
+    if (!methods::is (streetnet, "dodgr_streetnet"))
+        streetnet <- dodgr::weight_streetnet (streetnet, wt_profile = 1)
+
+    streetnet$flow <- 1
+    streetnet <- dodgr::merge_directed_flows (streetnet)
+    streetnet$flow <- NULL
+    streetnet <- streetnet [streetnet$component == 1, ]
+
+    message ("calculating fundamental cycles ... ")
+    cycles <- dodgr::dodgr_full_cycles (streetnet)
+    # attach mean moveability to each cycles:
+    cycles <- lapply (cycles, function (i) {
+                          indx <- match (i$id, m$id)
+                          if (length (which (!is.na (indx))) > 0)
+                          {
+                              i$m <- mean (m$m [indx], na.rm = TRUE)
+                              return (i)
+                          } else
+                              return (NULL)
+                         })
+    # then remove all NULL entries
+    cycles [which (!vapply (cycles, is.null, logical (1)))]
+}
+
+#' polygons_to_sf
+#'
+#' Convert polygons produced from \link{moveability_to_polygons} into equivalent
+#' \pkg{sf} format.
+#'
+#' @param polygons Result of \link{moveability_to_polygons} function
+#' @return Equivalent \pkg{sf} collection of `POLYGON` objects corresponding to
+#' street blocks, with average moveability statistics from all points defining
+#' that block.
+#' @examples
+#' m <- moveability (streetnet = dodgr::hampi)
+#' p <- moveability_to_polygons (m = m, streetnet = dodgr::hampi)
+#' psf <- polygons_to_sf (p)
+#' mvals <- unlist (lapply (p, function (i) i$m [1]))
+#' psf <- sf::st_sf (dat = mvals, geometry = psf)
+#' @export
+polygons_to_sf <- function (polygons)
+{
+    xy <- do.call (rbind, polygons)
+    xvals <- xy [, 2]
+    yvals <- xy [, 3]
+    bb <- structure (rep (NA_real_, 4),
+                     names = c("xmin", "ymin", "xmax", "ymax"))
+    bb [1:4] <- c (min (xvals), min (yvals), max (xvals), max (yvals))
+    class (bb) <- "bbox"
+
+    crs <- list (epsg = 4326L,
+                 proj4string = "+proj=longlat +datum=WGS84 +no_defs")
+    class (crs) <- "crs"
+    attr (bb, "crs") <- crs
+
+    polygons <- lapply (polygons, function (i) {
+                            res <- as.matrix (i [, 2:3])
+                            colnames (res) <- NULL
+                            structure (list (res),
+                                       class = c ("XY", "POLYGON", "sfg"))
+                 })
+    attr (polygons, "n_empty") <- 0
+    attr (polygons, "precision") <- 0.0
+    class (polygons) <- c ("sfc_POLYGON", "sfc")
+    attr (polygons, "bbox") <- bb
+    attr (polygons, "crs") <- crs
+    return (polygons)
 }

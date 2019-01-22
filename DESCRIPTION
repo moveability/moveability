@@ -14,7 +14,10 @@ Imports:
     Rcpp (>= 0.12.6),
     RcppParallel
 Suggests:
-    knitr
+    knitr,
+    sf
+Remotes:
+    atfutures/dodgr
 LinkingTo:
     Rcpp,
     RcppParallel
