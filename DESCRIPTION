@@ -28,7 +28,7 @@ VignetteBuilder: knitr
 NeedsCompilation: yes
 Encoding: UTF-8
 LazyData: true
-URL: https://github.com/ATFutures/moveability
-BugReports: https://github.com/ATFutures/moveability/issues
+URL: https://github.com/moveability/moveability
+BugReports: https://github.com/moveability/moveability/issues
 RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)

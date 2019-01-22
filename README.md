@@ -1,10 +1,10 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 [![Build
-Status](https://travis-ci.org/ATFutures/moveability.svg)](https://travis-ci.org/ATFutures/moveability)
+Status](https://travis-ci.org/moveability/moveability.svg)](https://travis-ci.org/moveability/moveability)
 [![AppVeyor Build
-Status](https://ci.appveyor.com/api/projects/status/github/ATFutures/moveability?branch=master&svg=true)](https://ci.appveyor.com/project/ATFutures/moveability)
-[![codecov](https://codecov.io/gh/ATFutures/moveability/branch/master/graph/badge.svg)](https://codecov.io/gh/ATFutures/moveability)
+Status](https://ci.appveyor.com/api/projects/status/github/moveability/moveability?branch=master&svg=true)](https://ci.appveyor.com/project/moveability/moveability)
+[![codecov](https://codecov.io/gh/moveability/moveability/branch/master/graph/badge.svg)](https://codecov.io/gh/moveability/moveability)
 [![Project Status:
 Concept](http://www.repostatus.org/badges/latest/concept.svg)](http://www.repostatus.org/#concept)
 
