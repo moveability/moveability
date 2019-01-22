@@ -82,3 +82,7 @@ mapdeck (style = 'mapbox://styles/mapbox/dark-v9',
               palette = "inferno")
 ```
 ![](demo.png)
+
+or the same thing plotted as polygons of city blocks
+
+![](demo-polygons.png)

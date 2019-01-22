@@ -68,3 +68,7 @@ mapdeck (style = 'mapbox://styles/mapbox/dark-v9',
 ```
 
 ![](demo.png)
+
+or the same thing plotted as polygons of city blocks
+
+![](demo-polygons.png)
