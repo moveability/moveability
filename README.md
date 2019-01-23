@@ -73,6 +73,29 @@ or the same thing plotted as polygons of city blocks
 
 ![](demo-polygons.png)
 
-and finally projected back on to the street network
+and finally projected back on to the street network, repeating full code
+to demonstrate
+how
+
+``` r
+streetnet <- dodgr::dodgr_streetnet (bbox = "münster de", expand = 0.05) %>%
+    dodgr::weight_streetnet (wt_profile = "foot") # or whatever
+m <- moveability (streetnet = streetnet)
+l <- moveability_to_lines (m, streetnet)
+lsf <- sf::st_sf (l$dat, geometry = l$geometry)
+# add "width" for plotting:
+lsf$width <- sqrt (lsf$flow * 10 / max (lsf$flow))
+
+library (mapdeck)
+set_token (Sys.getenv ("MAPBOX_TOKEN"))
+loc <- colMeans (do.call (rbind, l$geometry))
+mapdeck (style = 'mapbox://styles/mapbox/dark-v9',
+         zoom = 12,
+         location = loc) %>%
+    add_path (data = lsf,
+              stroke_colour = "flow",
+              stroke_width = "width",
+              palette = "inferno")
+```
 
 ![](demo-lines.png)
