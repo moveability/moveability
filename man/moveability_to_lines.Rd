@@ -23,6 +23,6 @@ of street network.
 }
 \examples{
 m <- moveability (streetnet = dodgr::hampi)
-p <- moveability_to_lines (m = m, streetnet = dodgr::hampi)
-# psf <- sf::st_sf (p$dat, geometry = p$geometry)
+l <- moveability_to_lines (m = m, streetnet = dodgr::hampi)
+# lsf <- sf::st_sf (l$dat, geometry = l$geometry)
 }

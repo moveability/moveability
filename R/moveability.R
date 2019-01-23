@@ -169,8 +169,8 @@ polygons_to_sf <- function (polygons)
 #' segment.
 #' @examples
 #' m <- moveability (streetnet = dodgr::hampi)
-#' p <- moveability_to_lines (m = m, streetnet = dodgr::hampi)
-#' # psf <- sf::st_sf (p$dat, geometry = p$geometry)
+#' l <- moveability_to_lines (m = m, streetnet = dodgr::hampi)
+#' # lsf <- sf::st_sf (l$dat, geometry = l$geometry)
 #' @export
 moveability_to_lines <- function (m, streetnet)
 {
@@ -178,6 +178,8 @@ moveability_to_lines <- function (m, streetnet)
         streetnet <- osmdata::osm_poly2line (streetnet)$osm_lines
     if (!methods::is (streetnet, "dodgr_streetnet"))
         streetnet <- dodgr::weight_streetnet (streetnet, wt_profile = 1)
+
+    streetnet <- streetnet [streetnet$component == 1, ]
 
     graphc <- dodgr::dodgr_contract_graph (streetnet)
     v <- dodgr::dodgr_vertices (graphc$graph)
@@ -187,11 +189,23 @@ moveability_to_lines <- function (m, streetnet)
     mvals <- apply (cbind (m_from, m_to), 1, function (i)
                     mean (i, na.rm = TRUE))
     mvals [is.nan (mvals)] <- NA
+
     graphc$graph$flow <- mvals
     graph <- uncontract_graph (graphc$graph, graphc$edge_map, streetnet)
-    graph <- graph [!is.na (graph$flow), ]
-    graph <- dodgr::merge_directed_flows (graph)
-    dodgr::dodgr_to_sfc (graph)
+    s <- dodgr::dodgr_to_sfc (graph)
+    # merge_directed_flows can't be used here, so new rcpp_reverse_index fn
+    # finds rows which are repeats of former rows but in reverse.
+    g <- data.frame (from = s$dat$from_id, to = s$dat$to_id,
+                     stringsAsFactors = FALSE)
+    indx <- rcpp_reverse_index (g)
+    indx <- seq (nrow (s$dat)) [!seq (nrow (s$dat)) %in% indx]
+    s$dat <- s$dat [indx, ]
+    s$geometry <- s$geometry [indx]
+    indx <- which (!is.na (s$dat$flow))
+    s$dat <- s$dat [indx, ]
+    s$geometry <- s$geometry [indx]
+
+    return (s)
 }
 
 # direct copy from dodgr/R/flows.R

@@ -50,3 +50,18 @@ rcpp_points_index <- function(xy, pts) {
     .Call(`_moveability_rcpp_points_index`, xy, pts)
 }
 
+#' rcpp_reverse_index
+#'
+#' Return an index of rows, j > i, for which 
+#' [from(j) == to (i), to(j) == from (i)]. These are edges duplicated in
+#' reverse which can then be removed.
+#'
+#' @param df Rcpp::DataFrame with 2 columns named "from" and "to"
+#'
+#' @return 0-indexed Rcpp::NumericVector index into graph of nearest points
+#'
+#' @noRd
+rcpp_reverse_index <- function(df) {
+    .Call(`_moveability_rcpp_reverse_index`, df)
+}
+
