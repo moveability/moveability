@@ -86,3 +86,7 @@ mapdeck (style = 'mapbox://styles/mapbox/dark-v9',
 or the same thing plotted as polygons of city blocks
 
 ![](demo-polygons.png)
+
+and finally projected back on to the street network
+
+![](demo-lines.png)
