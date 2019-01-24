@@ -5,21 +5,6 @@
 
 using namespace Rcpp;
 
-// rcpp_get_sp_dists_par
-Rcpp::NumericVector rcpp_get_sp_dists_par(const Rcpp::DataFrame graph, const Rcpp::DataFrame vert_map_in, Rcpp::IntegerVector fromi, const double d_threshold, const std::string& heap_type);
-RcppExport SEXP _moveability_rcpp_get_sp_dists_par(SEXP graphSEXP, SEXP vert_map_inSEXP, SEXP fromiSEXP, SEXP d_thresholdSEXP, SEXP heap_typeSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Rcpp::DataFrame >::type graph(graphSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::DataFrame >::type vert_map_in(vert_map_inSEXP);
-    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type fromi(fromiSEXP);
-    Rcpp::traits::input_parameter< const double >::type d_threshold(d_thresholdSEXP);
-    Rcpp::traits::input_parameter< const std::string& >::type heap_type(heap_typeSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_get_sp_dists_par(graph, vert_map_in, fromi, d_threshold, heap_type));
-    return rcpp_result_gen;
-END_RCPP
-}
 // rcpp_sf_as_network
 Rcpp::List rcpp_sf_as_network(const Rcpp::List& sf_lines, const Rcpp::DataFrame& pr);
 RcppExport SEXP _moveability_rcpp_sf_as_network(SEXP sf_linesSEXP, SEXP prSEXP) {
@@ -56,6 +41,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rcpp_get_sp_dists_par
+Rcpp::NumericVector rcpp_get_sp_dists_par(const Rcpp::DataFrame graph, const Rcpp::DataFrame vert_map_in, Rcpp::IntegerVector fromi, const double d_threshold, const std::string& heap_type);
+RcppExport SEXP _moveability_rcpp_get_sp_dists_par(SEXP graphSEXP, SEXP vert_map_inSEXP, SEXP fromiSEXP, SEXP d_thresholdSEXP, SEXP heap_typeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::DataFrame >::type graph(graphSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::DataFrame >::type vert_map_in(vert_map_inSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type fromi(fromiSEXP);
+    Rcpp::traits::input_parameter< const double >::type d_threshold(d_thresholdSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type heap_type(heap_typeSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_get_sp_dists_par(graph, vert_map_in, fromi, d_threshold, heap_type));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpp_reverse_index
 Rcpp::IntegerVector rcpp_reverse_index(const Rcpp::DataFrame& df);
 RcppExport SEXP _moveability_rcpp_reverse_index(SEXP dfSEXP) {
@@ -69,10 +69,10 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_moveability_rcpp_get_sp_dists_par", (DL_FUNC) &_moveability_rcpp_get_sp_dists_par, 5},
     {"_moveability_rcpp_sf_as_network", (DL_FUNC) &_moveability_rcpp_sf_as_network, 2},
     {"_moveability_rcpp_points_index_par", (DL_FUNC) &_moveability_rcpp_points_index_par, 2},
     {"_moveability_rcpp_points_index", (DL_FUNC) &_moveability_rcpp_points_index, 2},
+    {"_moveability_rcpp_get_sp_dists_par", (DL_FUNC) &_moveability_rcpp_get_sp_dists_par, 5},
     {"_moveability_rcpp_reverse_index", (DL_FUNC) &_moveability_rcpp_reverse_index, 1},
     {NULL, NULL, 0}
 };

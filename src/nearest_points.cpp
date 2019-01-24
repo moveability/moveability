@@ -1,4 +1,4 @@
-#include "sf-as-network.h"
+#include "nearest_points.h"
 
 // Haversine great circle distance between two points
 double haversine (double x1, double y1, double x2, double y2)
