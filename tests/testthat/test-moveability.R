@@ -16,7 +16,8 @@ test_that("moveability fn", {
               net <- net [net$component == 1, ]
               net$component <- NULL
               expect_message (m2 <- moveability (streetnet = net),
-                              "Calculating shortest paths from 169 points")
+                              "Calculating shortest paths from")
+              # CRAN dodgr: 167 points; current version: 169 points
               expect_true (ncol (m2) < ncol (m)) # no component column
               expect_true (nrow (m2) < nrow (m)) # fewer points
              })
