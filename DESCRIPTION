@@ -15,7 +15,8 @@ Imports:
     RcppParallel
 Suggests:
     knitr,
-    sf
+    sf,
+    testthat
 Remotes:
     atfutures/dodgr
 LinkingTo:
