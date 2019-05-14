@@ -1,6 +1,6 @@
 /* File bheap.c - Binary Heap
  * ----------------------------------------------------------------------------
- *  Shane Saunders
+ *  Mark Padgham, adapted from code by Shane Saunders
  */
 #include <cstdlib>
 #include "bheap.h"
@@ -46,6 +46,11 @@ unsigned int BHeap::min()
 {
     /* the item at the top of the binary heap has the minimum key value */
     return a[1].item;
+}
+
+double BHeap::getmin()
+{
+    return a[1].key;
 }
 
 /* --- insert() ---

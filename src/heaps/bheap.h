@@ -2,7 +2,7 @@
 #define BHEAP_H
 /* File bheap.h - Binary Heap
  * ----------------------------------------------------------------------------
- *  Shane Saunders
+ *  Mark Padgham, adapted from code by Shane Saunders
  */
 #include "heap.h"  /* Defines the base class for heaps. */
 
@@ -49,6 +49,8 @@ class BHeap : public Heap {
 
         long int nComps() const { return compCount; }
         void dump() const;
+
+        double getmin();
 
         /* extra functions */
         unsigned int min();

@@ -6,8 +6,8 @@ PKG_LIBS += $(shell "${R_HOME}/bin${R_ARCH_BIN}/Rscript.exe" \
               -e "RcppParallel::RcppParallelLibs()")
 
 OBJ_HEAPS = heaps/bheap.o
-OBJ_SRC = dgraph.o dijkstra.o graph.o nearest_points.o RcppExports.o run_sp.o \
-    utils.o
+OBJ_SRC = dgraph.o graph.o nearest_points.o pathfinders.o RcppExports.o \
+    run_sp.o utils.o
 OBJECTS = $(OBJ_HEAPS) $(OBJ_SRC)
 
 .PHONY: all clean

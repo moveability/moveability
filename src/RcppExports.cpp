@@ -5,6 +5,17 @@
 
 using namespace Rcpp;
 
+// rcpp_get_component_vector
+Rcpp::List rcpp_get_component_vector(const Rcpp::DataFrame& graph);
+RcppExport SEXP _moveability_rcpp_get_component_vector(SEXP graphSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::DataFrame& >::type graph(graphSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_get_component_vector(graph));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpp_sf_as_network
 Rcpp::List rcpp_sf_as_network(const Rcpp::List& sf_lines, const Rcpp::DataFrame& pr);
 RcppExport SEXP _moveability_rcpp_sf_as_network(SEXP sf_linesSEXP, SEXP prSEXP) {
@@ -69,6 +80,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_moveability_rcpp_get_component_vector", (DL_FUNC) &_moveability_rcpp_get_component_vector, 1},
     {"_moveability_rcpp_sf_as_network", (DL_FUNC) &_moveability_rcpp_sf_as_network, 2},
     {"_moveability_rcpp_points_index_par", (DL_FUNC) &_moveability_rcpp_points_index_par, 2},
     {"_moveability_rcpp_points_index", (DL_FUNC) &_moveability_rcpp_points_index, 2},

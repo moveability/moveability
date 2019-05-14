@@ -10,7 +10,7 @@
 // [[Rcpp::depends(RcppParallel)]]
 #include <RcppParallel.h>
 
-#include "dijkstra.h"
+#include "pathfinders.h"
 
 class DGraph;
 class Dijkstra;

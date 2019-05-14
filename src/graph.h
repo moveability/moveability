@@ -91,6 +91,8 @@ struct edge_t
     public:
         double dist;
         double weight;
+        double time;
+        double timew;
         bool replaced_by_compact;
 
         vertex_id_t get_from_vertex () { return from; }
@@ -99,14 +101,19 @@ struct edge_t
         std::set <edge_id_t> get_old_edges () { return old_edges; }
 
         edge_t (vertex_id_t from_id, vertex_id_t to_id,
-                double dist_in, double weight_in, edge_id_t id_in,
+                std::vector <double> weights_in, edge_id_t id_in,
                 std::set <edge_id_t> replacement_edges)
         {
             replaced_by_compact = false;
             this -> to = to_id;
             this -> from = from_id;
-            this -> dist = dist_in;
-            this -> weight = weight_in;
+            this -> dist = this -> weight = this -> time = weights_in [0];
+            if (weights_in.size () > 1)
+                this -> weight = weights_in [1];
+            if (weights_in.size () > 2)
+                this -> time = weights_in [2];
+            if (weights_in.size () > 3)
+                this -> timew = weights_in [3];
             this -> id = id_in;
             this -> old_edges.insert (replacement_edges.begin (),
                     replacement_edges.end ());
@@ -133,10 +140,73 @@ void erase_from_v2e_map (vert2edge_map_t &vert2edge_map, const vertex_id_t vid,
 
 bool graph_has_components (const Rcpp::DataFrame &graph);
 
-void graph_from_df (const Rcpp::DataFrame &gr, vertex_map_t &vm,
+bool graph_from_df (const Rcpp::DataFrame &gr, vertex_map_t &vm,
         edge_map_t &edge_map, vert2edge_map_t &vert2edge_map);
 
 unsigned int identify_graph_components (vertex_map_t &v,
         std::unordered_map <vertex_id_t, unsigned int> &com);
 
 } // end namespace graph
+
+Rcpp::List rcpp_get_component_vector (const Rcpp::DataFrame &graph);
+
+//----------------------------
+//----- functions in graph-sample.cpp
+//----------------------------
+
+namespace graph_sample {
+
+edge_component sample_one_edge_no_comps (vertex_map_t &vertices,
+        edge_map_t &edge_map);
+
+edge_id_t sample_one_edge_with_comps (Rcpp::DataFrame graph,
+        edge_map_t &edge_map);
+
+vertex_id_t sample_one_vertex (Rcpp::DataFrame graph, vertex_map_t &vertices,
+        edge_map_t &edge_map);
+
+vertex_id_t select_random_vert (Rcpp::DataFrame graph,
+        edge_map_t &edge_map, vertex_map_t &vertices);
+
+} // end namespace graph_sample
+
+Rcpp::StringVector rcpp_sample_graph (Rcpp::DataFrame graph,
+        unsigned int nverts_to_sample);
+
+//----------------------------
+//----- functions in graph-contract.cpp
+//----------------------------
+
+namespace graph_contract {
+
+edge_id_t get_new_edge_id (edge_map_t &edge_map, std::mt19937 &rng);
+
+void get_to_from (const edge_map_t &edge_map,
+        const std::unordered_set <edge_id_t> &edges,
+        const std::vector <vertex_id_t> &two_nbs,
+        vertex_id_t &vt_from, vertex_id_t &vt_to,
+        edge_id_t &edge_from_id, edge_id_t &edge_to_id);
+
+void contract_one_edge (vert2edge_map_t &vert2edge_map,
+        vertex_map_t &vertex_map, edge_map_t &edge_map,
+        const std::unordered_set <edge_id_t> &edgelist,
+        const vertex_id_t vtx_id, const vertex_id_t vt_from,
+        const vertex_id_t vt_to,
+        const edge_id_t edge_from_id, const edge_id_t edge_to_id,
+        const edge_id_t new_edge_id,
+        bool has_times);
+
+bool same_hwy_type (const edge_map_t &edge_map, const edge_id_t &e1,
+        const edge_id_t &e2);
+
+void contract_graph (vertex_map_t &vertex_map, edge_map_t &edge_map,
+        vert2edge_map_t &vert2edge_map,
+        std::unordered_set <vertex_id_t> verts_to_keep,
+        bool has_times);
+
+} // end namespace graph_contract
+
+Rcpp::List rcpp_contract_graph (const Rcpp::DataFrame &graph,
+        Rcpp::Nullable <Rcpp::StringVector> &vertlist_in);
+
+Rcpp::NumericVector rcpp_merge_flows (Rcpp::DataFrame graph);

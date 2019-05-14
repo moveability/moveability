@@ -1,4 +1,4 @@
-#include "dijkstra.h"
+#include "pathfinders.h"
 #include "dgraph.h"
 #include "heaps/heap.h"
 

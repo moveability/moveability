@@ -5,14 +5,13 @@ test_all <- (identical (Sys.getenv ("MPADGE_LOCAL"), "true") |
 
 test_that("moveability fn", {
               expect_message (m <- moveability (streetnet = dodgr::hampi),
-                              "The following highway types are present in data")
+                              "Calculating shortest paths from")
               expect_is (m, "data.frame")
               expect_equal (ncol (m), 6)
               expect_equal (names (m), c ("id", "x", "y", "component", "n", "m"))
 
-              expect_message (net <- dodgr::weight_streetnet (dodgr::hampi,
-                                                              wt_profile = "foot"),
-                              "The following highway types are present in data")
+              expect_silent (net <- dodgr::weight_streetnet (dodgr::hampi,
+                                                             wt_profile = "foot"))
               net <- net [net$component == 1, ]
               net$component <- NULL
               expect_message (m2 <- moveability (streetnet = net),
