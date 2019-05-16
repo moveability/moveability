@@ -174,11 +174,15 @@ polygons_to_sf <- function (polygons)
 #' @export
 moveability_to_lines <- function (m, streetnet)
 {
+    requireNamespace ("sf")
+
     if (methods::is (streetnet, "osmdata"))
         streetnet <- osmdata::osm_poly2line (streetnet)$osm_lines
     if (!methods::is (streetnet, "dodgr_streetnet"))
         streetnet <- dodgr::weight_streetnet (streetnet, wt_profile = 1)
 
+    if (!"component" %in% names (streetnet))
+        streetnet <- dodgr::dodgr_components (streetnet)
     streetnet <- streetnet [streetnet$component == 1, ]
 
     graphc <- dodgr::dodgr_contract_graph (streetnet)
@@ -207,20 +211,22 @@ moveability_to_lines <- function (m, streetnet)
     s$dat <- s$dat [indx, ]
     s$geometry <- s$geometry [indx]
 
-    return (s)
+    sf::st_sf (s$dat, geometry = s$geometry)
 }
 
 # direct copy from dodgr/R/flows.R
 # map contracted flows back onto full graph
 uncontract_graph <- function (graph, edge_map, graph_full)
 {
-    indx_to_full <- match (edge_map$edge_old, graph_full$edge_)
-    indx_to_contr <- match (edge_map$edge_new, graph$edge_)
+    gr_cols <- get_graph_cols (graph_full)
+    indx_to_full <- match (edge_map$edge_old, graph_full [[gr_cols$edge_id]])
+    indx_to_contr <- match (edge_map$edge_new, graph [[gr_cols$edge_id]])
     # edge_map only has the contracted edges; flows from the original
     # non-contracted edges also need to be inserted
-    edges <- graph$edge_ [which (!graph$edge_ %in% edge_map$edge_new)]
-    indx_to_full <- c (indx_to_full, match (edges, graph_full$edge_))
-    indx_to_contr <- c (indx_to_contr, match (edges, graph$edge_))
+    edges <- graph [[gr_cols$edge_id]] [which (!graph [[gr_cols$edge_id]] %in%
+                                               edge_map$edge_new)]
+    indx_to_full <- c (indx_to_full, match (edges, graph_full [[gr_cols$edge_id]]))
+    indx_to_contr <- c (indx_to_contr, match (edges, graph [[gr_cols$edge_id]]))
     graph_full$flow <- 0
     graph_full$flow [indx_to_full] <- graph$flow [indx_to_contr]
 
