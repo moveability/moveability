@@ -8,6 +8,7 @@ Description: Moveability statistics for any specified city.
 License: GPL-3
 Imports:
     dodgr,
+    magrittr,
     methods,
     osmdata,
     pbapply,
