@@ -47,7 +47,8 @@ void Dijkstra::init(std::shared_ptr<const DGraph> g) {
 void Dijkstra::run (std::vector<double>& d,
         std::vector<double>& w,
         std::vector<int>& prev,
-        unsigned int v0)
+        unsigned int v0,
+        const double dthreshold)
 {
     /* indexes, counters, pointers */
     const DGraphEdge *edge;
@@ -80,26 +81,29 @@ void Dijkstra::run (std::vector<double>& d,
 
         /* explore the OUT set of v */
         edge = vertices [v].outHead;
-        while (edge) {
-            unsigned int et = edge->target;
+        //if ((w [v] + edge->wt) <= d_threshold)
+        //{
+            while (edge) {
+                unsigned int et = edge->target;
 
-            if (!m_s [et]) {
-                double wt = w [v] + edge->wt;
-                if (wt < w [et]) {
-                    d [et] = d [v] + edge->dist;
-                    w [et] = wt;
-                    prev [et] = static_cast <int> (v);
-                    if (m_f [et]) {
-                      m_heap->decreaseKey(et, wt);
-                    }
-                    else {
-                      m_heap->insert (et, wt);
-                      m_f [et] = true;
+                if (!m_s [et]) {
+                    double wt = w [v] + edge->wt;
+                    if (wt < w [et]) {
+                        d [et] = d [v] + edge->dist;
+                        w [et] = wt;
+                        prev [et] = static_cast <int> (v);
+                        if (m_f [et]) {
+                            m_heap->decreaseKey(et, wt);
+                        }
+                        else {
+                            m_heap->insert (et, wt);
+                            m_f [et] = true;
+                        }
                     }
                 }
-            }
 
-            edge = edge->nextOut;
-        } /* while */
+                edge = edge->nextOut;
+            } /* while */
+        //}
     } /* while */
 }

@@ -65,7 +65,8 @@ class Dijkstra {
         void run (std::vector<double>& d,
                 std::vector<double>& w,
                 std::vector<int>& prev,
-                unsigned int s = 0);
+                unsigned int s = 0,
+                const double dthreshold = 1000.0);
 
     private:
         Heap *m_heap;        // pointer: heap

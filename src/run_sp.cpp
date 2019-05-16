@@ -68,17 +68,46 @@ struct OneDist : public RcppParallel::Worker
 
             dijkstra->run (d, w, prev,
                     static_cast <unsigned int> (dp_fromi [i]));
-            for (long int j = 0; j < nverts; j++)
+
+            // Then need to get the sum of only those terminal distances that
+            // are < d_threshold.
+
+            // Then need to get the sum of only those terminal distances that
+            // are < d_threshold.  
+            std::vector <bool> has_prev (nverts, false);
+            std::unordered_set <int> prev_set;
+            for (unsigned int j = 0; j < nverts; j++)
             {
-                if (w [static_cast <size_t> (j)] < d_threshold)
+                if (w [j] > d_threshold)
+                    prev [j] = -1;
+                else
                 {
-                    dout [i] += d [static_cast <size_t> (j)];
+                    has_prev [j] = true;
+                    if (prev [j] > -1)
+                        prev_set.emplace (prev [j]);
                 }
+            }
+            for (unsigned int j = 0; j < nverts; j++)
+            {
+                if (has_prev [j] && prev_set.find (j) == prev_set.end ())
+                    dout [i] += d [j];
             }
         }
     }
                                    
 };
+
+int run_sp::trace_back (const std::vector <int> &prev,
+        std::vector <bool> &vert_done, int &ndone, const int here_in)
+{
+    int here = prev [here_in];
+    if (here >= 0)
+    {
+        vert_done [here] = true;
+        ndone++;
+    }
+    return here;
+}
 
 
 size_t run_sp::make_vert_map (const Rcpp::DataFrame &vert_map_in,
@@ -169,3 +198,80 @@ Rcpp::NumericVector rcpp_get_sp_dists_par (const Rcpp::DataFrame graph,
     
     return (dout);
 }
+
+//' rcpp_get_sp_dists
+//'
+//' @noRd
+// [[Rcpp::export]]
+Rcpp::NumericVector rcpp_get_sp_dists (const Rcpp::DataFrame graph,
+        const Rcpp::DataFrame vert_map_in,
+        Rcpp::IntegerVector fromi,
+        const double d_threshold,
+        const std::string& heap_type)
+{
+    Rcpp::NumericVector id_vec;
+    size_t nfrom = run_sp::get_fromi (vert_map_in, fromi, id_vec);
+
+    std::vector <std::string> from = graph ["from"];
+    std::vector <std::string> to = graph ["to"];
+    std::vector <double> dist = graph ["d"];
+    std::vector <double> wt = graph ["w"];
+
+    unsigned int nedges = static_cast <unsigned int> (graph.nrow ());
+    std::map <std::string, unsigned int> vert_map;
+    std::vector <std::string> vert_map_id = vert_map_in ["vert"];
+    std::vector <unsigned int> vert_map_n = vert_map_in ["id"];
+    size_t nverts = run_sp::make_vert_map (vert_map_in, vert_map_id,
+            vert_map_n, vert_map);
+
+    std::shared_ptr<DGraph> g = std::make_shared<DGraph>(nverts);
+    inst_graph (g, nedges, vert_map, from, to, dist, wt);
+
+    std::shared_ptr <Dijkstra> dijkstra =
+        std::make_shared <Dijkstra> (
+            nverts, *run_sp::getHeapImpl(heap_type), g);
+
+    std::vector<double> w (nverts);
+    std::vector<double> d (nverts);
+    std::vector<int> prev (nverts);
+
+    dijkstra->init (g); // specify the graph
+
+    Rcpp::NumericVector dout (static_cast <int> (nfrom), 0.0);
+
+    for (unsigned int v = 0; v < nfrom; v++)
+    {
+        Rcpp::checkUserInterrupt ();
+        std::fill (w.begin(), w.end(), INFINITE_DOUBLE);
+        std::fill (d.begin(), d.end(), INFINITE_DOUBLE);
+
+        dijkstra->run (d, w, prev,
+                static_cast <unsigned int> (fromi [v]), d_threshold);
+
+        // Then need to get the sum of only those terminal distances that
+        // are < d_threshold.  
+        std::vector <bool> has_prev (nverts, false);
+        std::unordered_set <int> prev_set;
+        for (unsigned int i = 0; i < nverts; i++)
+        {
+            if (w [i] > d_threshold)
+                prev [i] = -1;
+            else
+            {
+                has_prev [i] = true;
+                if (prev [i] > -1)
+                    prev_set.emplace (prev [i]);
+            }
+        }
+        for (unsigned int i = 0; i < nverts; i++)
+        {
+            if (has_prev [i] && prev_set.find (i) == prev_set.end ())
+                dout [v] += d [i];
+        }
+
+        Rcpp::checkUserInterrupt ();
+    }
+    return (dout);
+}
+
+

@@ -40,7 +40,16 @@ void make_vert_to_edge_maps (const std::vector <std::string> &from,
         std::unordered_map <std::string, unsigned int> &verts_to_edge_map,
         std::unordered_map <std::string, double> &verts_to_dist_map);
 
+int trace_back (const std::vector <int> &prev,
+        std::vector <bool> &vert_done, int &ndone, const int here_in);
+
 } // end namespace run_sp
+
+Rcpp::NumericVector rcpp_get_sp_dists (const Rcpp::DataFrame graph,
+        const Rcpp::DataFrame vert_map_in,
+        Rcpp::IntegerVector fromi,
+        const double d_threshold,
+        const std::string& heap_type);
 
 Rcpp::NumericVector rcpp_get_sp_dists_par (const Rcpp::DataFrame graph,
         const Rcpp::DataFrame vert_map_in,

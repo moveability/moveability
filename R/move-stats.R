@@ -26,7 +26,6 @@ move_stats <- function (graph, from, d_threshold = 1, quiet = TRUE)
 
     d_threshold <- d_threshold * 1000 # convert to metres
 
-    # hard-coded SC dodgr_graph_cols:
     gr_cols <- get_graph_cols (graph)
     vert_map <- make_vert_map (graph, unlist (gr_cols))
 
