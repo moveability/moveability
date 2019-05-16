@@ -184,8 +184,10 @@ moveability_to_lines <- function (m, streetnet)
     graphc <- dodgr::dodgr_contract_graph (streetnet)
     v <- dodgr::dodgr_vertices (graphc$graph)
     m <- m [which (m$id %in% v$id), ]
-    m_from <- m$m [match (graphc$graph$from_id, m$id)]
-    m_to <- m$m [match (graphc$graph$to_id, m$id)]
+
+    gr_cols <- get_graph_cols (graphc$graph)
+    m_from <- m$m [match (graphc$graph [[gr_cols$from]], m$id)]
+    m_to <- m$m [match (graphc$graph [[gr_cols$to]], m$id)]
     mvals <- apply (cbind (m_from, m_to), 1, function (i)
                     mean (i, na.rm = TRUE))
     mvals [is.nan (mvals)] <- NA
@@ -212,13 +214,13 @@ moveability_to_lines <- function (m, streetnet)
 # map contracted flows back onto full graph
 uncontract_graph <- function (graph, edge_map, graph_full)
 {
-    indx_to_full <- match (edge_map$edge_old, graph_full$edge_id)
-    indx_to_contr <- match (edge_map$edge_new, graph$edge_id)
+    indx_to_full <- match (edge_map$edge_old, graph_full$edge_)
+    indx_to_contr <- match (edge_map$edge_new, graph$edge_)
     # edge_map only has the contracted edges; flows from the original
     # non-contracted edges also need to be inserted
-    edges <- graph$edge_id [which (!graph$edge_id %in% edge_map$edge_new)]
-    indx_to_full <- c (indx_to_full, match (edges, graph_full$edge_id))
-    indx_to_contr <- c (indx_to_contr, match (edges, graph$edge_id))
+    edges <- graph$edge_ [which (!graph$edge_ %in% edge_map$edge_new)]
+    indx_to_full <- c (indx_to_full, match (edges, graph_full$edge_))
+    indx_to_contr <- c (indx_to_contr, match (edges, graph$edge_))
     graph_full$flow <- 0
     graph_full$flow [indx_to_full] <- graph$flow [indx_to_contr]
 

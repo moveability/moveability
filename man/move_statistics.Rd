@@ -2,7 +2,7 @@
 % Please edit documentation in R/move-stats.R
 \name{move_statistics}
 \alias{move_statistics}
-\title{move_distances}
+\title{move_statistics}
 \usage{
 move_statistics(graph, from, quiet = TRUE)
 }

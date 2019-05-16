@@ -21,21 +21,20 @@
 #' # correponding moveability statisics 
 move_stats <- function (graph, from, d_threshold = 1, quiet = TRUE)
 {
-    gr_cols <- c (2, 3, 6, 9, 10, 4, 5, 7, 8, 13)
-    names (gr_cols) <- c ("edge_id", "from", "to", "d", "w",
-                          "xfr", "yfr", "xto", "yto", "component")
-    class (gr_cols) <- c (class (gr_cols), "graph_columns")
-    vert_map <- make_vert_map (graph, gr_cols)
+    if (missing (from))
+        stop ("from must be provided")
+
+    d_threshold <- d_threshold * 1000 # convert to metres
+
+    # hard-coded SC dodgr_graph_cols:
+    gr_cols <- get_graph_cols (graph)
+    vert_map <- make_vert_map (graph, unlist (gr_cols))
 
     index_id <- get_index_id_cols (graph, gr_cols, vert_map, from)
     from_index <- index_id$index - 1 # 0-based
     from_id <- index_id$id
 
-    graph$geom_num <- graph$from_lon <- graph$from_lat <-
-        graph$to_lon <- graph$to_lat <- graph$highway <-
-        graph$way_id <- graph$component <- NULL
-    names (graph) <- c ("edge_id", "from", "to", "d", "w")
-    graph$edge_id <- paste0 (graph$edge_id)
+    graph <- convert_graph (graph, gr_cols)
 
     if (!quiet)
         message ("Calculating shortest paths from ",
@@ -52,7 +51,7 @@ move_stats <- function (graph, from, d_threshold = 1, quiet = TRUE)
     return (d)
 }
 
-#' move_distances
+#' move_statistics
 #'
 #' Alias for \link{move_stats}
 #' @inherit move_stats
