@@ -50,13 +50,12 @@ test_that ("polygons_to_sf", {
 
 test_that ("moveability_to_lines", {
                m <- moveability (streetnet = dodgr::hampi)
+               requireNamespace ("sf")
                expect_silent (l <- moveability_to_lines (m = m,
                                                          streetnet = dodgr::hampi))
-               expect_is (l, "list")
-               expect_length (l, 2)
-               expect_named (l, c ("dat", "geometry"))
-               expect_equal (length (l$geometry), nrow (l$dat))
-               #expect_is (l$geometry, "sfc_LINESTRING")
-               #expect_is (l$geometry, "list")
-               expect_is (l$dat, "data.frame")
+               expect_is (l, c ("sf", "data.frame"))
+               expect_length (l, 17)
+               expect_true (all (c ("geom_num", "edge_id", "flow", "geometry") %in%
+                                 names (l)))
+               expect_true (nrow (l) > nrow (dodgr::hampi))
              })

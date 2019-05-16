@@ -41,7 +41,7 @@ typedef std::set <DijkstraEdge, by_wt> EdgeSet;
 
 /* Dijkstra's Algorithm
  * ----------------------------------------------------------------------------
- * Author:  Shane Saunders
+ * Author: Mark Padgham, modified from code by Shane Saunders
  */
 
 class Heap;      // Heap
@@ -66,10 +66,6 @@ class Dijkstra {
                 std::vector<double>& w,
                 std::vector<int>& prev,
                 unsigned int s = 0);
-        void run_set (std::vector <double>& d,
-                std::vector<double>& w,
-                std::vector<int>& prev,
-                unsigned int s = 0);
 
     private:
         Heap *m_heap;        // pointer: heap
@@ -78,8 +74,6 @@ class Dijkstra {
         bool *m_f;           // array: frontier set state of vertices
 
         std::shared_ptr<const DGraph> m_graph;    // pointer: directed graph    
-
-        EdgeSet edge_set;
 };
 
 #endif
