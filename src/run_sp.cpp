@@ -67,7 +67,8 @@ struct OneDist : public RcppParallel::Worker
             std::fill (d.begin (), d.end (), INFINITE_DOUBLE);
 
             dijkstra->run (d, w, prev,
-                    static_cast <unsigned int> (dp_fromi [i]));
+                    static_cast <unsigned int> (dp_fromi [i]),
+                    d_threshold);
 
             // Then need to get the sum of only those terminal distances that
             // are < d_threshold.

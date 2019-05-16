@@ -48,7 +48,7 @@ void Dijkstra::run (std::vector<double>& d,
         std::vector<double>& w,
         std::vector<int>& prev,
         unsigned int v0,
-        const double dthreshold)
+        const double d_threshold)
 {
     /* indexes, counters, pointers */
     const DGraphEdge *edge;
@@ -70,6 +70,17 @@ void Dijkstra::run (std::vector<double>& d,
     m_heap->insert(v0, 0.0);
     m_f [v0] = true;
 
+    /* Implement a speed-up by only tracing out to some distance range. This
+     * itself requires expanding the threshold to ensure shortest paths are
+     * traced. This expansion must go beyond the threshold because it includes
+     * initial (non-settled) distance estimates, which may be greater yet end up
+     * being less. Values of 2 generate discrepancies, whereas the value of 5
+     * generates only rounding-error discrepancies for a trial network of
+     * 370,000 edges. On this network, the `if (w+..)<=dt2` clause speeds up
+     * calculations by 4-5 times
+     */
+    double dt2 = d_threshold * 5.0;
+
     /* repeatedly update distances from the minimum remaining trigger vertex */
     while (m_heap->nItems() > 0) {
         /* delete the vertex in frontier that has minimum distance */
@@ -81,8 +92,8 @@ void Dijkstra::run (std::vector<double>& d,
 
         /* explore the OUT set of v */
         edge = vertices [v].outHead;
-        //if ((w [v] + edge->wt) <= d_threshold)
-        //{
+        if ((w [v] + edge->wt) <= dt2)
+        {
             while (edge) {
                 unsigned int et = edge->target;
 
@@ -104,6 +115,6 @@ void Dijkstra::run (std::vector<double>& d,
 
                 edge = edge->nextOut;
             } /* while */
-        //}
+        }
     } /* while */
 }
