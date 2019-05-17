@@ -62,8 +62,8 @@ moveability <- function (streetnet = NULL, city = NULL, d_threshold = 1,
 
             # select vertices from `turn_angle = F`, then re-map them onto graph
             # with turn angles:
-            streetnet_c <- dodgr_contract_graph (streetnet)
-            verts <- dodgr_vertices (streetnet_c$graph)
+            streetnet_c <- dodgr::dodgr_contract_graph (streetnet)
+            verts <- dodgr::dodgr_vertices (streetnet_c$graph)
 
             v0 <- gsub ("_start", "",
                         streetnet_t$.vx0 [grep ("_start", streetnet_t$.vx0)])
@@ -83,6 +83,13 @@ moveability <- function (streetnet = NULL, city = NULL, d_threshold = 1,
             pt <- paste0 (round ((proc.time () - pt0) [3]))
             message (paste ("done in", pt, "seconds."))
         }
+        streetnet <- netc$graph
+    } else
+    {
+        netc <- dodgr::dodgr_contract_graph (streetnet)
+        from <- unique (netc$graph$from_id)
+        verts <- dodgr::dodgr_vertices (netc$graph)
+        verts <- verts [which (verts$id %in% from), ]
     }
 
     verts$m <- move_stats (netc$graph, from = from, quiet = quiet)
