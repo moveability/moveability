@@ -4,6 +4,8 @@
 
 #include <algorithm> // std::fill
 
+#include <Rcpp.h> // TODO: Delete that
+
 /* Dijkstra's Algorithm
  * ----------------------------------------------------------------------------
  * Author: Mark Padgham, modified from code by Shane Saunders
@@ -90,10 +92,21 @@ void Dijkstra::run (std::vector<double>& d,
         m_s [v] = true;
         m_f [v] = false;
 
-        /* explore the OUT set of v */
+        // explore the OUT set of v only if distances are < threshold
+        bool explore = false;
         edge = vertices [v].outHead;
-        if ((w [v] + edge->wt) <= dt2)
+        while (edge) {
+            if ((w [v] + edge->wt) <= dt2)
+            {
+                explore = true;
+                break;
+            }
+            edge = edge->nextOut;
+        }
+
+        if (explore)
         {
+            edge = vertices [v].outHead;
             while (edge) {
                 unsigned int et = edge->target;
 
@@ -112,9 +125,8 @@ void Dijkstra::run (std::vector<double>& d,
                         }
                     }
                 }
-
-                edge = edge->nextOut;
-            } /* while */
-        }
-    } /* while */
+            edge = edge->nextOut;
+            } // end while
+        } // end if explore
+    } // end while
 }

@@ -2,19 +2,20 @@
 #'
 #' Calculate moveability statistics for a specified city
 #'
-#' @param city City for which moveability statistics are to be calcualted.
 #' @param streetnet Instead of city, a pre-downloaded or prepared street network
 #' can be submitted. Must be either an \pkg{sf}, \pkg{osmdata} or \pkg{dodgr}
 #' format.
+#' @param city City for which moveability statistics are to be calcualted.
 #' @param d_threshold Distance threshold below which distances are to be
 #' aggreagted (in kilometres).
+#' @param mode Mode of transport: either "foot" or "bicycle"
 #' @param quiet If `TRUE`, dump progress information to screen.
 #' @return Nothing (open interactive map)
 #' @examples
 #' m <- moveability (streetnet = dodgr::hampi)
 #' @export
-moveability <- function (city = NULL, streetnet = NULL, d_threshold = 1,
-                         quiet = FALSE)
+moveability <- function (streetnet = NULL, city = NULL, d_threshold = 1,
+                         mode = "foot", quiet = FALSE)
 {
     if (is.null (city) & is.null (streetnet))
         stop ("city or streetnet must be specified")
@@ -26,6 +27,7 @@ moveability <- function (city = NULL, streetnet = NULL, d_threshold = 1,
         streetnet <- mv_streetnet (city = city, quiet = quiet)
     } else if (!(methods::is (streetnet, "sf") |
                methods::is (streetnet, "osmdata") |
+               methods::is (streetnet, "osmdata_sc") |
                methods::is (streetnet, "dodgr_streetnet")))
         stop ("streetnet must be of format sf, osmdata, or dodgr")
        
@@ -33,11 +35,57 @@ moveability <- function (city = NULL, streetnet = NULL, d_threshold = 1,
         streetnet <- osmdata::osm_poly2line (streetnet)$osm_lines
 
     if (!methods::is (streetnet, "dodgr_streetnet"))
-        streetnet <- dodgr::weight_streetnet (streetnet, wt_profile = "foot")
-    netc <- dodgr::dodgr_contract_graph (streetnet)
-    verts <- dodgr::dodgr_vertices (netc$graph)
+    {
+        if (!mode %in% c ("foot", "bicycle"))
+            stop ("mode must be either foot or bicycle")
+        if (!quiet)
+        {
+            message ("contracting street network ... ", appendLF = FALSE)
+            pt0 <- proc.time ()
+        }
 
-    verts$m <- move_stats (netc$graph, from = verts$id, quiet = quiet)
+        if (mode == "foot")
+        {
+            streetnet <- dodgr::weight_streetnet (streetnet,
+                                                  wt_profile = mode)
+            netc <- dodgr::dodgr_contract_graph (streetnet)
+            verts <- dodgr::dodgr_vertices (netc$graph)
+            from <- verts$id
+        } else # bicycle
+        {
+            streetnet_t <- dodgr::weight_streetnet (streetnet,
+                                                    wt_profile = "bicycle",
+                                                    turn_angle = TRUE)
+            streetnet <- dodgr::weight_streetnet (streetnet,
+                                                  wt_profile = "bicycle",
+                                                  turn_angle = FALSE)
+
+            # select vertices from `turn_angle = F`, then re-map them onto graph
+            # with turn angles:
+            streetnet_c <- dodgr_contract_graph (streetnet)
+            verts <- dodgr_vertices (streetnet_c$graph)
+
+            v0 <- gsub ("_start", "",
+                        streetnet_t$.vx0 [grep ("_start", streetnet_t$.vx0)])
+            from <- verts$id
+            from [from %in% v0] <- paste0 (from [from %in% v0], "_start")
+
+            netc <- dodgr::dodgr_contract_graph (streetnet_t, verts = from)
+
+            # some vertices may nevertheless only end up as destination vertices
+            # in contracted graph, so:
+            index <- which (from %in% netc$graph$.vx0)
+            from <- from [index]
+            verts <- verts [index, ]
+        }
+        if (!quiet)
+        {
+            pt <- paste0 (round ((proc.time () - pt0) [3]))
+            message (paste ("done in", pt, "seconds."))
+        }
+    }
+
+    verts$m <- move_stats (netc$graph, from = from, quiet = quiet)
     return (verts)
 }
 

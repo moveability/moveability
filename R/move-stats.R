@@ -36,16 +36,22 @@ move_stats <- function (graph, from, d_threshold = 1, quiet = FALSE)
     graph <- convert_graph (graph, gr_cols)
 
     if (!quiet)
+    {
         message ("Calculating shortest paths from ",
                  format (length (from), big.mark = ","),
                  " points ... ", appendLF = FALSE)
+        pt0 <- proc.time ()
+    }
 
     d <- rcpp_get_sp_dists_par (graph, vert_map, from_index, d_threshold,
                                 heap_type = "BHeap")
     names (d) <- from_id
 
     if (!quiet)
-        message ("done.")
+    {
+        pt <- paste0 (round ((proc.time () - pt0) [3]))
+        message (paste ("done in", pt, "seconds."))
+    }
 
     return (d)
 }
