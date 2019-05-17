@@ -19,7 +19,7 @@
 #' d <- move_stats (graph, from = from)
 #' # d is a `data.frame` of the coordinates of all `from` points and
 #' # correponding moveability statisics 
-move_stats <- function (graph, from, d_threshold = 1, quiet = TRUE)
+move_stats <- function (graph, from, d_threshold = 1, quiet = FALSE)
 {
     if (missing (from))
         stop ("from must be provided")

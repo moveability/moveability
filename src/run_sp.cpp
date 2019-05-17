@@ -60,38 +60,34 @@ struct OneDist : public RcppParallel::Worker
         std::vector <double> d (nverts);
         std::vector <int> prev (nverts);
 
-        for (std::size_t i = begin; i < end; i++)
+        for (std::size_t v = begin; v < end; v++)
         {
             // These have to be reserved within the parallel operator function!
             std::fill (w.begin (), w.end (), INFINITE_DOUBLE);
             std::fill (d.begin (), d.end (), INFINITE_DOUBLE);
 
             dijkstra->run (d, w, prev,
-                    static_cast <unsigned int> (dp_fromi [i]),
-                    d_threshold);
-
-            // Then need to get the sum of only those terminal distances that
-            // are < d_threshold.
+                    static_cast <unsigned int> (dp_fromi [v]), d_threshold);
 
             // Then need to get the sum of only those terminal distances that
             // are < d_threshold.  
             std::vector <bool> has_prev (nverts, false);
             std::unordered_set <int> prev_set;
-            for (unsigned int j = 0; j < nverts; j++)
+            for (unsigned int i = 0; i < nverts; i++)
             {
-                if (w [j] > d_threshold)
-                    prev [j] = -1;
+                if (w [i] > d_threshold)
+                    prev [i] = -1;
                 else
                 {
-                    has_prev [j] = true;
-                    if (prev [j] > -1)
-                        prev_set.emplace (prev [j]);
+                    has_prev [i] = true;
+                    if (prev [i] > -1)
+                        prev_set.emplace (prev [i]);
                 }
             }
-            for (unsigned int j = 0; j < nverts; j++)
+            for (unsigned int i = 0; i < nverts; i++)
             {
-                if (has_prev [j] && prev_set.find (j) == prev_set.end ())
-                    dout [i] += d [j];
+                if (has_prev [i] && prev_set.find (i) == prev_set.end ())
+                    dout [v] += d [i];
             }
         }
     }
@@ -269,9 +265,15 @@ Rcpp::NumericVector rcpp_get_sp_dists (const Rcpp::DataFrame graph,
             if (has_prev [i] && prev_set.find (i) == prev_set.end ())
                 dout [v] += d [i];
         }
-
-        Rcpp::checkUserInterrupt ();
+        if ((v % 1000) == 0)
+        {
+            Rcpp::checkUserInterrupt ();
+            int pr = round (100 * v / nfrom);
+            Rcpp::Rcout << "\r" << pr << "%    ";
+            Rcpp::Rcout.flush ();
+        }
     }
+    Rcpp::Rcout << " done." << std::endl;
     return (dout);
 }
 

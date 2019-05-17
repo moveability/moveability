@@ -4,7 +4,7 @@
 \alias{move_stats}
 \title{move_stats}
 \usage{
-move_stats(graph, from, d_threshold = 1, quiet = TRUE)
+move_stats(graph, from, d_threshold = 1, quiet = FALSE)
 }
 \arguments{
 \item{graph}{An \code{dodgr_streetnet} object}
