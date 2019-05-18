@@ -8,18 +8,15 @@ Status](https://ci.appveyor.com/api/projects/status/github/moveability/moveabili
 [![Project Status:
 Concept](http://www.repostatus.org/badges/latest/concept.svg)](http://www.repostatus.org/#concept)
 
-# moveability: Forget walkability, i wanna skate
+# moveability: walkability and cycleability metrics for global cities
 
 ## Warning: Currently experimental only
 
-Infrastructure to calculate comprehensive moveability statistics for a
-nominated city. Moveability is intended to connote any means by which
+Open-source engine to calculate comprehensive moveability statistics for
+a global cities. Moveability is intended to connote any means by which
 people might actively move thenselves, primarily implying walking and
 cycling, but also potentially skating, scootering, wheelchairing, or any
 other conceivable form of active transport.
-
-Currently concept-only demo only calculates walkability (and doesn’t
-even do that properly just yet, but it will soon enough …)
 
 ## Usage
 
@@ -31,20 +28,11 @@ verts <- moveability (city = "muenster germany")
 ```
 
 The function does a heap of heavy work, downloading the entire street
-net and calculating routes between every single pair of points in the
-network. This is likely to take quite some time - at least several
+network and calculating routes between every single pair of points in
+the network. This is likely to take quite some time - at least several
 minutes - but will provide progress information on the way. The result
 is a `data.frame` of all points in the street network for the nominated
-city, with a column `$m` quantifying walkability.
-
-An alternative approach is to pre-download the network and submit that
-to the `moveability()` function:
-
-``` r
-net <- dodgr::dodgr_streetnet (bbox = city, expand = 0.05) %>%
-    dodgr::weight_streetnet (wt_profile = "foot") # or whatever
-verts <- moveability (streetnet = net)
-```
+city, with a column `$m` quantifying moveability.
 
 The result can be directly viewed with
 [`mapdeck`](https://github.com/SymbolixAU/mapdeck) with the following
@@ -74,15 +62,13 @@ or the same thing plotted as polygons of city blocks
 ![](demo-polygons.png)
 
 and finally projected back on to the street network, repeating full code
-to demonstrate
-how
+to demonstrate how
 
 ``` r
 streetnet <- dodgr::dodgr_streetnet (bbox = "münster de", expand = 0.05) %>%
     dodgr::weight_streetnet (wt_profile = "foot") # or whatever
 m <- moveability (streetnet = streetnet)
-l <- moveability_to_lines (m, streetnet)
-lsf <- sf::st_sf (l$dat, geometry = l$geometry)
+lsf <- moveability_to_lines (m, streetnet) # sf-format linestrings
 # add "width" for plotting:
 lsf$width <- sqrt (lsf$flow * 10 / max (lsf$flow))
 
