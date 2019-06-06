@@ -49,21 +49,21 @@ moveability <- function (streetnet = NULL, city = NULL, d_threshold = 1,
             streetnet <- dodgr::weight_streetnet (streetnet,
                                                   wt_profile = mode)
             netc <- dodgr::dodgr_contract_graph (streetnet)
-            verts <- dodgr::dodgr_vertices (netc$graph)
+            verts <- dodgr::dodgr_vertices (netc)
             from <- verts$id
         } else # bicycle
         {
             streetnet_t <- dodgr::weight_streetnet (streetnet,
                                                     wt_profile = "bicycle",
-                                                    turn_angle = TRUE)
+                                                    turn_penalty = TRUE)
             streetnet <- dodgr::weight_streetnet (streetnet,
                                                   wt_profile = "bicycle",
-                                                  turn_angle = FALSE)
+                                                  turn_penalty = FALSE)
 
-            # select vertices from `turn_angle = F`, then re-map them onto graph
-            # with turn angles:
+            # select vertices from `turn_penalty = F`, then re-map them onto
+            # graph with turn penalties:
             streetnet_c <- dodgr::dodgr_contract_graph (streetnet)
-            verts <- dodgr::dodgr_vertices (streetnet_c$graph)
+            verts <- dodgr::dodgr_vertices (streetnet_c)
 
             v0 <- gsub ("_start", "",
                         streetnet_t$.vx0 [grep ("_start", streetnet_t$.vx0)])
@@ -74,7 +74,7 @@ moveability <- function (streetnet = NULL, city = NULL, d_threshold = 1,
 
             # some vertices may nevertheless only end up as destination vertices
             # in contracted graph, so:
-            index <- which (from %in% netc$graph$.vx0)
+            index <- which (from %in% netc$.vx0)
             from <- from [index]
             verts <- verts [index, ]
         }
@@ -83,16 +83,17 @@ moveability <- function (streetnet = NULL, city = NULL, d_threshold = 1,
             pt <- paste0 (round ((proc.time () - pt0) [3]))
             message (paste ("done in", pt, "seconds."))
         }
-        streetnet <- netc$graph
+        streetnet <- netc
     } else
     {
         netc <- dodgr::dodgr_contract_graph (streetnet)
-        from <- unique (netc$graph$from_id)
-        verts <- dodgr::dodgr_vertices (netc$graph)
+        gr_cols <- get_graph_cols (streetnet)
+        from <- unique (netc [[gr_cols$from]])
+        verts <- dodgr::dodgr_vertices (netc)
         verts <- verts [which (verts$id %in% from), ]
     }
 
-    verts$m <- move_stats (netc$graph, from = from, quiet = quiet)
+    verts$m <- move_stats (netc, from = from, quiet = quiet)
     return (verts)
 }
 
@@ -148,6 +149,8 @@ moveability_to_polygons <- function (m, streetnet)
     streetnet$flow <- 1
     streetnet <- dodgr::merge_directed_flows (streetnet)
     streetnet$flow <- NULL
+    if (!"component" %in% names (streetnet))
+        streetnet <- dodgr::dodgr_components (streetnet)
     streetnet <- streetnet [streetnet$component == 1, ]
 
     message ("calculating fundamental cycles ... ")
@@ -179,11 +182,13 @@ moveability_to_polygons <- function (m, streetnet)
 #' m <- moveability (streetnet = dodgr::hampi)
 #' p <- moveability_to_polygons (m = m, streetnet = dodgr::hampi)
 #' psf <- polygons_to_sf (p)
-#' mvals <- unlist (lapply (p, function (i) i$m [1]))
-#' psf <- sf::st_sf (dat = mvals, geometry = psf)
 #' @export
 polygons_to_sf <- function (polygons)
 {
+    requireNamespace ("sf")
+
+    mvals <- unlist (lapply (polygons, function (i) i$m [1]))
+
     xy <- do.call (rbind, polygons)
     xvals <- xy [, 2]
     yvals <- xy [, 3]
@@ -198,7 +203,7 @@ polygons_to_sf <- function (polygons)
     attr (bb, "crs") <- crs
 
     polygons <- lapply (polygons, function (i) {
-                            res <- as.matrix (i [, 2:3])
+                            res <- as.matrix (i [, c ("x", "y")])
                             colnames (res) <- NULL
                             structure (list (res),
                                        class = c ("XY", "POLYGON", "sfg"))
@@ -208,7 +213,8 @@ polygons_to_sf <- function (polygons)
     class (polygons) <- c ("sfc_POLYGON", "sfc")
     attr (polygons, "bbox") <- bb
     attr (polygons, "crs") <- crs
-    return (polygons)
+
+    sf::st_sf (dat = mvals, geometry = polygons)
 }
 
 #' moveability_to_lines
@@ -241,50 +247,18 @@ moveability_to_lines <- function (m, streetnet)
     streetnet <- streetnet [streetnet$component == 1, ]
 
     graphc <- dodgr::dodgr_contract_graph (streetnet)
-    v <- dodgr::dodgr_vertices (graphc$graph)
+    v <- dodgr::dodgr_vertices (graphc)
     m <- m [which (m$id %in% v$id), ]
 
-    gr_cols <- get_graph_cols (graphc$graph)
-    m_from <- m$m [match (graphc$graph [[gr_cols$from]], m$id)]
-    m_to <- m$m [match (graphc$graph [[gr_cols$to]], m$id)]
+    gr_cols <- get_graph_cols (graphc)
+    m_from <- m$m [match (graphc [[gr_cols$from]], m$id)]
+    m_to <- m$m [match (graphc [[gr_cols$to]], m$id)]
     mvals <- apply (cbind (m_from, m_to), 1, function (i)
                     mean (i, na.rm = TRUE))
     mvals [is.nan (mvals)] <- NA
 
-    graphc$graph$flow <- mvals
-    graph <- uncontract_graph (graphc$graph, graphc$edge_map, streetnet)
-    s <- dodgr::dodgr_to_sfc (graph)
-    # merge_directed_flows can't be used here, so new rcpp_reverse_index fn
-    # finds rows which are repeats of former rows but in reverse.
-    g <- data.frame (from = s$dat$from_id, to = s$dat$to_id,
-                     stringsAsFactors = FALSE)
-    indx <- rcpp_reverse_index (g)
-    indx <- seq (nrow (s$dat)) [!seq (nrow (s$dat)) %in% indx]
-    s$dat <- s$dat [indx, ]
-    s$geometry <- s$geometry [indx]
-    indx <- which (!is.na (s$dat$flow))
-    s$dat <- s$dat [indx, ]
-    s$geometry <- s$geometry [indx]
-
-    sf::st_sf (s$dat, geometry = s$geometry)
+    graphc$flow <- mvals
+    graph <- dodgr::dodgr_uncontract_graph (graphc)
+    graph <- dodgr::merge_directed_flows (graph)
+    dodgr::dodgr_to_sf (graph)
 }
-
-# direct copy from dodgr/R/flows.R
-# map contracted flows back onto full graph
-uncontract_graph <- function (graph, edge_map, graph_full)
-{
-    gr_cols <- get_graph_cols (graph_full)
-    indx_to_full <- match (edge_map$edge_old, graph_full [[gr_cols$edge_id]])
-    indx_to_contr <- match (edge_map$edge_new, graph [[gr_cols$edge_id]])
-    # edge_map only has the contracted edges; flows from the original
-    # non-contracted edges also need to be inserted
-    edges <- graph [[gr_cols$edge_id]] [which (!graph [[gr_cols$edge_id]] %in%
-                                               edge_map$edge_new)]
-    indx_to_full <- c (indx_to_full, match (edges, graph_full [[gr_cols$edge_id]]))
-    indx_to_contr <- c (indx_to_contr, match (edges, graph [[gr_cols$edge_id]]))
-    graph_full$flow <- 0
-    graph_full$flow [indx_to_full] <- graph$flow [indx_to_contr]
-
-    return (graph_full)
-}
-

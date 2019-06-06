@@ -22,6 +22,4 @@ Convert polygons produced from \link{moveability_to_polygons} into equivalent
 m <- moveability (streetnet = dodgr::hampi)
 p <- moveability_to_polygons (m = m, streetnet = dodgr::hampi)
 psf <- polygons_to_sf (p)
-mvals <- unlist (lapply (p, function (i) i$m [1]))
-psf <- sf::st_sf (dat = mvals, geometry = psf)
 }

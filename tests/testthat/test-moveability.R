@@ -29,7 +29,7 @@ test_that ("moveability to polygons", {
                                                             streetnet = dodgr::hampi),
                               "calculating fundamental cycles")
               expect_is (p, "list")
-              expect_length (p, 43)
+              expect_length (p, 44)
               expect_true (all (sapply (p, is.data.frame)))
               expect_true (all (sapply (p, ncol) == 4))
               expect_true (all (sapply (p, names) == c ("id", "x", "y", "m")))
@@ -39,9 +39,9 @@ test_that ("polygons_to_sf", {
                m <- moveability (streetnet = dodgr::hampi)
                p <- moveability_to_polygons (m = m, streetnet = dodgr::hampi)
                psf <- polygons_to_sf (p)
-               expect_is (psf, "sfc_POLYGON")
-               expect_equal (length (p), length (psf))
-               xy <- lapply (psf, function (i) i [[1]])
+               expect_is (psf, "sf")
+               expect_equal (length (p), nrow (psf))
+               xy <- lapply (psf$geometry, function (i) i [[1]])
                expect_equal (nrow (do.call (rbind, p)),
                              nrow (do.call (rbind, xy)))
                expect_equal (ncol (do.call (rbind, p)), 4)
@@ -54,7 +54,7 @@ test_that ("moveability_to_lines", {
                expect_silent (l <- moveability_to_lines (m = m,
                                                          streetnet = dodgr::hampi))
                expect_is (l, c ("sf", "data.frame"))
-               expect_length (l, 17)
+               expect_length (l, 20)
                expect_true (all (c ("geom_num", "edge_id", "flow", "geometry") %in%
                                  names (l)))
                expect_true (nrow (l) > nrow (dodgr::hampi))
