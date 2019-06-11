@@ -16,6 +16,8 @@ Imports:
     Rcpp (>= 0.12.6),
     RcppParallel
 Suggests:
+    dplyr,
+    geodist,
     knitr,
     sf,
     testthat
