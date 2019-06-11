@@ -27,6 +27,6 @@ calculation of fundamental cycles in the street network graph used to
 identify street blocks.
 }
 \examples{
-m <- moveability (streetnet = dodgr::hampi)
-p <- moveability_to_polygons (m = m, streetnet = dodgr::hampi)
+m <- moveability (streetnet = castlemaine)
+p <- moveability_to_polygons (m = m, streetnet = castlemaine)
 }

@@ -32,5 +32,5 @@ Moveability statistics for any specified city.
 Calculate moveability statistics for a specified city
 }
 \examples{
-m <- moveability (streetnet = dodgr::hampi)
+m <- moveability (streetnet = castlemaine)
 }

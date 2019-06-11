@@ -12,7 +12,7 @@
 #' @param quiet If `TRUE`, dump progress information to screen.
 #' @return Nothing (open interactive map)
 #' @examples
-#' m <- moveability (streetnet = dodgr::hampi)
+#' m <- moveability (streetnet = castlemaine)
 #' @export
 moveability <- function (streetnet = NULL, city = NULL, d_threshold = 1,
                          mode = "foot", quiet = FALSE)
@@ -24,18 +24,15 @@ moveability <- function (streetnet = NULL, city = NULL, d_threshold = 1,
 
     if (!is.null (city))
     {
-        streetnet <- mv_streetnet (city = city, quiet = quiet)
-    } else if (!(methods::is (streetnet, "sf") |
-               methods::is (streetnet, "osmdata") |
-               methods::is (streetnet, "osmdata_sc") |
-               methods::is (streetnet, "dodgr_streetnet")))
-        stop ("streetnet must be of format sf, osmdata, or dodgr")
+        streetnet <- osmdata::opq (city) %>%
+            osmdata::add_osm_feature (key = "highway") %>%
+            osmdata::osmdata_sc (quiet = FALSE)
+    } else if (!(methods::is (streetnet, "osmdata_sc") |
+               methods::is (streetnet, "dodgr_streetnet_sc")))
+        stop ("streetnet must be of format osmdata_sc, or dodgr_streetnet_sc")
        
-    if (methods::is (streetnet, "osmdata"))
-        streetnet <- osmdata::osm_poly2line (streetnet)$osm_lines
-
-    if (!methods::is (streetnet, "dodgr_streetnet"))
-    {
+    if (!methods::is (streetnet, "dodgr_streetnet_sc"))
+    { # then convert to dodgr fmt
         if (!mode %in% c ("foot", "bicycle"))
             stop ("mode must be either foot or bicycle")
         if (!quiet)
@@ -44,10 +41,12 @@ moveability <- function (streetnet = NULL, city = NULL, d_threshold = 1,
             pt0 <- proc.time ()
         }
 
+        dodgr::dodgr_cache_off ()
         if (mode == "foot")
         {
             streetnet <- dodgr::weight_streetnet (streetnet,
-                                                  wt_profile = mode)
+                                                  wt_profile = mode) %>%
+                        dodgr::dodgr_components ()
             netc <- dodgr::dodgr_contract_graph (streetnet)
             verts <- dodgr::dodgr_vertices (netc)
             from <- verts$id
@@ -83,41 +82,16 @@ moveability <- function (streetnet = NULL, city = NULL, d_threshold = 1,
             pt <- paste0 (round ((proc.time () - pt0) [3]))
             message (paste ("done in", pt, "seconds."))
         }
-        streetnet <- netc
     } else
     {
         netc <- dodgr::dodgr_contract_graph (streetnet)
-        gr_cols <- get_graph_cols (streetnet)
-        from <- unique (netc [[gr_cols$from]])
+        from <- unique (netc$.vx0)
         verts <- dodgr::dodgr_vertices (netc)
         verts <- verts [which (verts$id %in% from), ]
     }
 
     verts$m <- move_stats (netc, from = from, quiet = quiet)
     return (verts)
-}
-
-# largely from dodgr::dodgr_streetnet
-mv_streetnet <- function (city = NULL, quiet)
-{
-    is_poly <- TRUE
-    bb_poly <- osmdata::getbb (city, format_out = "polygon")
-    if (is.list (bb_poly))
-    {
-        bb_poly <- bb_poly [[1]]
-    } else if (nrow (bb_poly) == 2)
-    {
-        is_poly <- FALSE
-    }
-    bb <- apply (bb_poly, 2, range)
-        
-    qq <- osmdata::opq (bb)
-    qq <- osmdata::add_osm_feature (qq, key = "highway")
-    dat <- osmdata::osmdata_sf (qq, quiet = quiet)
-    dat <- osmdata::osm_poly2line (dat)
-    if (is_poly)
-        dat <- osmdata::trim_osmdata (dat, bb_poly)
-    return (dat$osm_lines)
 }
 
 #' moveability_to_polygons
@@ -136,8 +110,8 @@ mv_streetnet <- function (city = NULL, quiet)
 #' blocks, with average moveability statistics from all points defining that
 #' block.
 #' @examples
-#' m <- moveability (streetnet = dodgr::hampi)
-#' p <- moveability_to_polygons (m = m, streetnet = dodgr::hampi)
+#' m <- moveability (streetnet = castlemaine)
+#' p <- moveability_to_polygons (m = m, streetnet = castlemaine)
 #' @export
 moveability_to_polygons <- function (m, streetnet)
 {
@@ -179,8 +153,8 @@ moveability_to_polygons <- function (m, streetnet)
 #' street blocks, with average moveability statistics from all points defining
 #' that block.
 #' @examples
-#' m <- moveability (streetnet = dodgr::hampi)
-#' p <- moveability_to_polygons (m = m, streetnet = dodgr::hampi)
+#' m <- moveability (streetnet = castlemaine)
+#' p <- moveability_to_polygons (m = m, streetnet = castlemaine)
 #' psf <- polygons_to_sf (p)
 #' @export
 polygons_to_sf <- function (polygons)
@@ -229,30 +203,23 @@ polygons_to_sf <- function (polygons)
 #' with moveability statistics averaged between the two end points of each line
 #' segment.
 #' @examples
-#' m <- moveability (streetnet = dodgr::hampi)
-#' l <- moveability_to_lines (m = m, streetnet = dodgr::hampi)
+#' m <- moveability (streetnet = castlemaine)
+#' # l <- moveability_to_lines (m = m, streetnet = castlemaine)
 #' # lsf <- sf::st_sf (l$dat, geometry = l$geometry)
 #' @export
 moveability_to_lines <- function (m, streetnet)
 {
-    requireNamespace ("sf")
-
-    if (methods::is (streetnet, "osmdata"))
-        streetnet <- osmdata::osm_poly2line (streetnet)$osm_lines
-    if (!methods::is (streetnet, "dodgr_streetnet"))
+    if (!methods::is (streetnet, "dodgr_streetnet_sc"))
         streetnet <- dodgr::weight_streetnet (streetnet, wt_profile = 1)
 
-    if (!"component" %in% names (streetnet))
-        streetnet <- dodgr::dodgr_components (streetnet)
     streetnet <- streetnet [streetnet$component == 1, ]
 
     graphc <- dodgr::dodgr_contract_graph (streetnet)
     v <- dodgr::dodgr_vertices (graphc)
     m <- m [which (m$id %in% v$id), ]
 
-    gr_cols <- get_graph_cols (graphc)
-    m_from <- m$m [match (graphc [[gr_cols$from]], m$id)]
-    m_to <- m$m [match (graphc [[gr_cols$to]], m$id)]
+    m_from <- m$m [match (graphc$.vx0, m$id)]
+    m_to <- m$m [match (graphc$.vx1, m$id)]
     mvals <- apply (cbind (m_from, m_to), 1, function (i)
                     mean (i, na.rm = TRUE))
     mvals [is.nan (mvals)] <- NA

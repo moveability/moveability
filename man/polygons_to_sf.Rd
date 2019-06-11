@@ -19,7 +19,7 @@ Convert polygons produced from \link{moveability_to_polygons} into equivalent
 \pkg{sf} format.
 }
 \examples{
-m <- moveability (streetnet = dodgr::hampi)
-p <- moveability_to_polygons (m = m, streetnet = dodgr::hampi)
+m <- moveability (streetnet = castlemaine)
+p <- moveability_to_polygons (m = m, streetnet = castlemaine)
 psf <- polygons_to_sf (p)
 }

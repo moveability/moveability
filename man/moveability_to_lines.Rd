@@ -22,7 +22,7 @@ Project moveability statistics from \link{moveability} on to lines
 of street network.
 }
 \examples{
-m <- moveability (streetnet = dodgr::hampi)
-l <- moveability_to_lines (m = m, streetnet = dodgr::hampi)
+m <- moveability (streetnet = castlemaine)
+# l <- moveability_to_lines (m = m, streetnet = castlemaine)
 # lsf <- sf::st_sf (l$dat, geometry = l$geometry)
 }

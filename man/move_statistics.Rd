@@ -22,9 +22,8 @@ moveability quantified as \code{$m}.
 Alias for \link{move_stats}
 }
 \examples{
-# A larger example from the included [hampi()] data.
-graph <- dodgr::weight_streetnet (dodgr::hampi)
-from <- sample (graph$from_id, size = 100)
+graph <- dodgr::weight_streetnet (castlemaine)
+from <- sample (graph$.vx0, size = 100)
 d <- move_stats (graph, from = from)
 # d is a `data.frame` of the coordinates of all `from` points and
 # correponding moveability statisics 
