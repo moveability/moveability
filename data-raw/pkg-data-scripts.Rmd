@@ -1,0 +1,19 @@
+# script to generate `data/castlemaine.rda` 
+
+```{r load, echo = FALSE}
+library (osmdata)
+```
+```{r}
+castlemaine <- opq ("castlemaine australia") %>%
+    add_osm_feature (key = "highway") %>%
+    osmdata_sc (quiet = FALSE)
+```
+There is one non-ASCII character:
+```{r}
+i <- grep ("Archdeacon", castlemaine$object$value)
+castlemaine$object$value [i] <- "Archdeacon's Pass"
+```
+
+```{r}
+usethis::use_data (castlemaine, overwrite = TRUE, compress = 'xz')
+```
