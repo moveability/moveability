@@ -17,3 +17,10 @@ castlemaine$object$value [i] <- "Archdeacon's Pass"
 ```{r}
 usethis::use_data (castlemaine, overwrite = TRUE, compress = 'xz')
 ```
+
+```{r}
+devtools::load_all (export_all = FALSE)
+castlemaine_green <- get_green_space ("castlemaine autralia")
+usethis::use_data (castlemaine_green, overwrite = TRUE, compress = 'xz')
+```
+

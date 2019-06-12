@@ -6,7 +6,7 @@
 \alias{moveability-package}
 \title{moveability.}
 \usage{
-moveability(streetnet = NULL, city = NULL, d_threshold = 1,
+moveability(streetnet = NULL, green = NULL, d_threshold = 1,
   mode = "foot", quiet = FALSE)
 }
 \arguments{
@@ -14,7 +14,7 @@ moveability(streetnet = NULL, city = NULL, d_threshold = 1,
 can be submitted. Must be either an \pkg{sf}, \pkg{osmdata} or \pkg{dodgr}
 format.}
 
-\item{city}{City for which moveability statistics are to be calcualted.}
+\item{green}{Areas of green space obtained from \link{get_green_space}}
 
 \item{d_threshold}{Distance threshold below which distances are to be
 aggreagted (in kilometres).}

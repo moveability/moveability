@@ -5,14 +5,8 @@ test_all <- (identical (Sys.getenv ("MPADGE_LOCAL"), "true") |
 
 test_that("moveability checks", {
               expect_error (m <- moveability (),
-                            "city or streetnet must be provided")
+                            "streetnet must be provided")
 
-              m <- moveability (streetnet = castlemaine, city = "castlemaine")
-              # first message is "city or streetnet must be specified", but
-              # `expect_message` matches on last message, so:
-              expect_message (m <- moveability (streetnet = castlemaine,
-                                                city = "castlemaine"),
-                              "Calculating shortest paths from")
               expect_error (m <- moveability (streetnet = list ()),
                             paste0 ("streetnet must be of format osmdata_sc, ",
                                     "or dodgr_streetnet_sc"))

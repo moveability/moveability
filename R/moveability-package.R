@@ -30,3 +30,13 @@ NULL
 #' street network
 NULL
 
+#' castlemaine_green
+#'
+#' Polygons of all green spaces in Castlemaine
+#'
+#' @name castlemaine_green
+#' @docType data
+#' @keywords datasets
+#' @format \pkg{sf}-format `data.frame` of green space polygons
+NULL
+

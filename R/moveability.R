@@ -5,7 +5,7 @@
 #' @param streetnet Instead of city, a pre-downloaded or prepared street network
 #' can be submitted. Must be either an \pkg{sf}, \pkg{osmdata} or \pkg{dodgr}
 #' format.
-#' @param city City for which moveability statistics are to be calcualted.
+#' @param green Areas of green space obtained from \link{get_green_space}
 #' @param d_threshold Distance threshold below which distances are to be
 #' aggreagted (in kilometres).
 #' @param mode Mode of transport: either "foot" or "bicycle"
@@ -14,21 +14,12 @@
 #' @examples
 #' m <- moveability (streetnet = castlemaine)
 #' @export
-moveability <- function (streetnet = NULL, city = NULL, d_threshold = 1,
+moveability <- function (streetnet = NULL, green = NULL, d_threshold = 1,
                          mode = "foot", quiet = FALSE)
 {
-    if (is.null (city) & is.null (streetnet))
-        stop ("city or streetnet must be provided")
-    if (!is.null (city) & !is.null (streetnet))
-    {
-        message ("City will be ignored, as streetnet has been provided")
-        city <- NULL
-    }
-
-    if (!is.null (city))
-    {
-        streetnet <- dl_streetnet (city) # nocov
-    } else if (!(methods::is (streetnet, "osmdata_sc") |
+    if (is.null (streetnet))
+        stop ("streetnet must be provided")
+    else if (!(methods::is (streetnet, "osmdata_sc") |
                methods::is (streetnet, "dodgr_streetnet_sc")))
         stop ("streetnet must be of format osmdata_sc, or dodgr_streetnet_sc")
        
@@ -36,15 +27,6 @@ moveability <- function (streetnet = NULL, city = NULL, d_threshold = 1,
 
     obj$verts$m <- move_stats (obj$net, from = obj$from, quiet = quiet)
     return (obj$verts)
-}
-
-dl_streetnet <- function (city)
-{
-    # nocov start
-    osmdata::opq (city) %>%
-        osmdata::add_osm_feature (key = "highway") %>%
-        osmdata::osmdata_sc (quiet = FALSE)
-    # nocov end
 }
 
 # The primary objects are the contracted street network, the table of junction
