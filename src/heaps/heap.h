@@ -22,7 +22,6 @@
  * insert()       - inserts an item 'item' with key 'key' into the heap.
  * decreaseKey()  - decreases the key of item 'item' to the new value newKey.
  * nItems()       - returns the number of items currently in the heap.
- * nComps()       - returns the number of key comparison operations.
  */
 class Heap {
     public:
@@ -31,7 +30,6 @@ class Heap {
         virtual void insert(unsigned int item, double key) = 0;
         virtual void decreaseKey(unsigned int item, double newKey) = 0;
         virtual unsigned int nItems() const = 0;
-        virtual long int nComps() const = 0;
 };
 
 class HeapDesc {

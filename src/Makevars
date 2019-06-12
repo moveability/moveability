@@ -5,7 +5,7 @@ PKG_LIBS += $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
 PKG_LIBS += $(shell ${R_HOME}/bin/Rscript -e "RcppParallel::RcppParallelLibs()")
 
 OBJ_HEAPS = heaps/bheap.o
-OBJ_SRC = dgraph.o pathfinders.o RcppExports.o run_sp.o utils.o
+OBJ_SRC = dgraph.o pathfinders.o RcppExports.o run_sp.o
 OBJECTS = $(OBJ_HEAPS) $(OBJ_SRC)
 
 .PHONY: all clean

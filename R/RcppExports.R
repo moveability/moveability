@@ -8,18 +8,3 @@ rcpp_get_sp_dists_par <- function(graph, vert_map_in, fromi, d_threshold, heap_t
     .Call(`_moveability_rcpp_get_sp_dists_par`, graph, vert_map_in, fromi, d_threshold, heap_type)
 }
 
-#' rcpp_reverse_index
-#'
-#' Return an index of rows, j > i, for which 
-#' [from(j) == to (i), to(j) == from (i)]. These are edges duplicated in
-#' reverse which can then be removed.
-#'
-#' @param df Rcpp::DataFrame with 2 columns named "from" and "to"
-#'
-#' @return 0-indexed Rcpp::NumericVector index into graph of nearest points
-#'
-#' @noRd
-rcpp_reverse_index <- function(df) {
-    .Call(`_moveability_rcpp_reverse_index`, df)
-}
-

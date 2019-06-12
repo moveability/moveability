@@ -20,21 +20,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// rcpp_reverse_index
-Rcpp::IntegerVector rcpp_reverse_index(const Rcpp::DataFrame& df);
-RcppExport SEXP _moveability_rcpp_reverse_index(SEXP dfSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Rcpp::DataFrame& >::type df(dfSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_reverse_index(df));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_moveability_rcpp_get_sp_dists_par", (DL_FUNC) &_moveability_rcpp_get_sp_dists_par, 5},
-    {"_moveability_rcpp_reverse_index", (DL_FUNC) &_moveability_rcpp_reverse_index, 1},
     {NULL, NULL, 0}
 };
 

@@ -115,9 +115,11 @@ void BHeap::deleteItem(unsigned int item)
             /* Use insert to sift-down, temporarily adjusting the size of the
              * heap for the call to insert.
              */
+            // # nocov start
             itemCount = p - 1;
             insert(a[n+1].item, a[n+1].key);
             itemCount = n;
+            // # nocov end
         }
     }
 }

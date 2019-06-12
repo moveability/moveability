@@ -32,9 +32,6 @@ size_t make_vert_map (const Rcpp::DataFrame &vert_map_in,
         const std::vector <unsigned int> &vert_map_n,
         std::map <std::string, unsigned int> &vert_map);
 
-int trace_back (const std::vector <int> &prev,
-        std::vector <bool> &vert_done, int &ndone, const int here_in);
-
 } // end namespace run_sp
 
 Rcpp::NumericVector rcpp_get_sp_dists_par (const Rcpp::DataFrame graph,

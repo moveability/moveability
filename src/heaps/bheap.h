@@ -47,8 +47,6 @@ class BHeap : public Heap {
         void decreaseKey(unsigned int item, double newKey);
         unsigned int nItems() const { return itemCount; }
 
-        long int nComps() const { return compCount; }
-
         /* extra functions */
         unsigned int min();
 

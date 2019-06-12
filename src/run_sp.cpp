@@ -94,19 +94,6 @@ struct OneDist : public RcppParallel::Worker
                                    
 };
 
-int run_sp::trace_back (const std::vector <int> &prev,
-        std::vector <bool> &vert_done, int &ndone, const int here_in)
-{
-    int here = prev [here_in];
-    if (here >= 0)
-    {
-        vert_done [here] = true;
-        ndone++;
-    }
-    return here;
-}
-
-
 size_t run_sp::make_vert_map (const Rcpp::DataFrame &vert_map_in,
         const std::vector <std::string> &vert_map_id,
         const std::vector <unsigned int> &vert_map_n,
