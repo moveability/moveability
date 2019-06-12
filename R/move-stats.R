@@ -54,7 +54,8 @@ move_stats <- function (graph, from, green_polys, d_threshold = 1, quiet = FALSE
     m <- colSums (d)
     res <- data.frame (id = vert_id,
                        m = m,
-                       area = areas,
+                       hull_area = areas$hull_area,
+                       green_area = areas$green_area,
                        stringsAsFactors = FALSE)
 
     if (!quiet)
@@ -143,6 +144,8 @@ green_areas <- function (dmat, green_polys, vertices, vert_id, vert_map)
     pts <- do.call (c, pts_to_polygon (pts) [index])
     pts <- sf::st_sf (geometry = pts)
 
+    hull_area <- as.numeric (sf::st_area (pts))
+
     green <- sf::st_union (green_polys)
     suppressMessages (area <- lapply (pts$geometry, function (i) {
                                       res <- sf::st_sfc (i, crs = 4326) %>%
@@ -153,8 +156,10 @@ green_areas <- function (dmat, green_polys, vertices, vert_id, vert_map)
                                       return (res)  }))
     area <- do.call (c, area)
 
-    atemp <- rep (0, ncol (dmat))
+    atemp <- htemp <- rep (0, ncol (dmat))
     atemp [index] <- area
+    htemp [index] <- hull_area
 
-    return (atemp)
+    data.frame (hull_area = htemp,
+                green_area = atemp)
 }

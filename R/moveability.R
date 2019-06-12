@@ -33,7 +33,8 @@ moveability <- function (streetnet = NULL, green_polys = NULL, d_threshold = 1,
                      d_threshold = d_threshold,
                      quiet = quiet)
     obj$verts$m <- m$m
-    obj$verts$green_area = m$area
+    obj$verts$hull_area = m$hull_area
+    obj$verts$green_area = m$green_area
 
     return (obj$verts)
 }

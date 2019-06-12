@@ -26,9 +26,9 @@ test_that("moveability fn", {
                                                 green_polys = castlemaine_green),
                               "Calculating shortest paths from")
               expect_is (m, "data.frame")
-              expect_equal (ncol (m), 7)
+              expect_equal (ncol (m), 8)
               expect_equal (names (m), c ("id", "x", "y", "component",
-                                          "n", "m", "green_area"))
+                                          "n", "m", "hull_area", "green_area"))
 
               expect_silent (net <- dodgr::weight_streetnet (castlemaine,
                                                              wt_profile = "foot"))
@@ -44,9 +44,9 @@ test_that("moveability fn", {
                                                  mode = "bicycle"),
                               "Calculating shortest paths from")
               expect_is (m3, "data.frame")
-              expect_equal (ncol (m3), 7)
+              expect_equal (ncol (m3), 8)
               expect_equal (names (m3), c ("id", "x", "y", "component",
-                                           "n", "m", "green_area"))
+                                           "n", "m", "hull_area", "green_area"))
               expect_true (nrow (m3) < nrow (m))
               # bike moveability should be greater:
               expect_true (mean (m3$m) > mean (m$m))
