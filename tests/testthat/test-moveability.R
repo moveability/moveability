@@ -26,34 +26,19 @@ test_that ("moveability to polygons", {
               expect_message (p <- moveability_to_polygons (m = m,
                                                             streetnet = castlemaine),
                               "calculating fundamental cycles")
-              expect_is (p, "list")
-              expect_length (p, 423)
-              expect_true (all (sapply (p, is.data.frame)))
-              expect_true (all (sapply (p, ncol) == 4))
-              expect_true (all (sapply (p, names) == c ("id", "x", "y", "m")))
-             })
-
-test_that ("polygons_to_sf", {
-               m <- moveability (streetnet = castlemaine)
-               p <- moveability_to_polygons (m = m, streetnet = castlemaine)
-               psf <- polygons_to_sf (p)
-               expect_is (psf, "sf")
-               expect_equal (length (p), nrow (psf))
-               xy <- lapply (psf$geometry, function (i) i [[1]])
-               expect_equal (nrow (do.call (rbind, p)),
-                             nrow (do.call (rbind, xy)))
-               expect_equal (ncol (do.call (rbind, p)), 4)
-               expect_equal (ncol (do.call (rbind, xy)), 2)
+              expect_is (p, "sf")
+              expect_equal (nrow (p), 423)
+              expect_equal (ncol (p), 2)
+              expect_identical (names (p), c ("moveability", "geometry"))
              })
 
 test_that ("moveability_to_lines", {
                m <- moveability (streetnet = castlemaine)
                requireNamespace ("sf")
-               #expect_silent (l <- moveability_to_lines (m = m,
-               #                                          streetnet = castlemaine))
-               #expect_is (l, c ("sf", "data.frame"))
-               #expect_length (l, 20)
-               #expect_true (all (c ("geom_num", "edge_id", "flow", "geometry") %in%
-               #                  names (l)))
-               #expect_true (nrow (l) > nrow (castlemaine))
+               expect_silent (l <- moveability_to_lines (m = m,
+                                                         streetnet = castlemaine))
+               expect_is (l, c ("sf", "data.frame"))
+               expect_length (l, 18)
+               expect_true (all (c ("object_", "edge_id", "flow", "geometry") %in%
+                                 names (l)))
              })

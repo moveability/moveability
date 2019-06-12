@@ -45,8 +45,7 @@ moveability <- function (streetnet = NULL, city = NULL, d_threshold = 1,
         if (mode == "foot")
         {
             streetnet <- dodgr::weight_streetnet (streetnet,
-                                                  wt_profile = mode) %>%
-                        dodgr::dodgr_components ()
+                                                  wt_profile = mode)
             netc <- dodgr::dodgr_contract_graph (streetnet)
             verts <- dodgr::dodgr_vertices (netc)
             from <- verts$id
@@ -115,16 +114,12 @@ moveability <- function (streetnet = NULL, city = NULL, d_threshold = 1,
 #' @export
 moveability_to_polygons <- function (m, streetnet)
 {
-    if (methods::is (streetnet, "osmdata"))
-        streetnet <- osmdata::osm_poly2line (streetnet)$osm_lines
-    if (!methods::is (streetnet, "dodgr_streetnet"))
+    if (!methods::is (streetnet, "dodgr_streetnet_sc"))
         streetnet <- dodgr::weight_streetnet (streetnet, wt_profile = 1)
 
     streetnet$flow <- 1
     streetnet <- dodgr::merge_directed_flows (streetnet)
     streetnet$flow <- NULL
-    if (!"component" %in% names (streetnet))
-        streetnet <- dodgr::dodgr_components (streetnet)
     streetnet <- streetnet [streetnet$component == 1, ]
 
     message ("calculating fundamental cycles ... ")
@@ -140,23 +135,11 @@ moveability_to_polygons <- function (m, streetnet)
                               return (NULL)
                          })
     # then remove all NULL entries
-    cycles [which (!vapply (cycles, is.null, logical (1)))]
+    polygons_to_sf (cycles [which (!vapply (cycles, is.null, logical (1)))])
 }
 
-#' polygons_to_sf
-#'
-#' Convert polygons produced from \link{moveability_to_polygons} into equivalent
-#' \pkg{sf} format.
-#'
-#' @param polygons Result of \link{moveability_to_polygons} function
-#' @return Equivalent \pkg{sf} collection of `POLYGON` objects corresponding to
-#' street blocks, with average moveability statistics from all points defining
-#' that block.
-#' @examples
-#' m <- moveability (streetnet = castlemaine)
-#' p <- moveability_to_polygons (m = m, streetnet = castlemaine)
-#' psf <- polygons_to_sf (p)
-#' @export
+# Convert polygons produced from \link{moveability_to_polygons} into equivalent
+# \pkg{sf} format.
 polygons_to_sf <- function (polygons)
 {
     requireNamespace ("sf")
@@ -188,7 +171,7 @@ polygons_to_sf <- function (polygons)
     attr (polygons, "bbox") <- bb
     attr (polygons, "crs") <- crs
 
-    sf::st_sf (dat = mvals, geometry = polygons)
+    sf::st_sf (moveability = mvals, geometry = polygons)
 }
 
 #' moveability_to_lines
