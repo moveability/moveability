@@ -41,6 +41,11 @@ move_stats <- function (graph, from, d_threshold = 1, quiet = FALSE)
 
     d <- rcpp_get_sp_dists_par (graph, vert_map, from_index, d_threshold,
                                 heap_type = "BHeap")
+    # returns a matrix which can be used to extract all points within
+    # d_threshold, but for the moment, just calculate the total sums of
+    # distances:
+    d <- matrix (d, nrow = nrow (vert_map), ncol = length (from_index))
+    d <- colSums (d)
     names (d) <- vert_id
 
     if (!quiet)

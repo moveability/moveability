@@ -30,6 +30,7 @@ std::shared_ptr <HeapDesc> run_sp::getHeapImpl(const std::string& heap_type)
 struct OneDist : public RcppParallel::Worker
 {
     RcppParallel::RVector <int> dp_fromi;
+    const size_t nfrom;
     const size_t nverts;
     const double d_threshold;
     const std::shared_ptr <DGraph> g;
@@ -40,12 +41,14 @@ struct OneDist : public RcppParallel::Worker
     // constructor
     OneDist (
             const Rcpp::IntegerVector fromi,
+            const size_t nfrom_in,
             const size_t nverts_in,
             const double d_threshold_in,
             const std::shared_ptr <DGraph> g_in,
             const std::string & heap_type_in,
             Rcpp::NumericVector dout_in) :
-        dp_fromi (fromi), nverts (nverts_in), d_threshold (d_threshold_in),
+        dp_fromi (fromi), nfrom (nfrom_in), nverts (nverts_in),
+        d_threshold (d_threshold_in),
         g (g_in), heap_type (heap_type_in), dout (dout_in)
     {
     }
@@ -87,7 +90,8 @@ struct OneDist : public RcppParallel::Worker
             for (unsigned int i = 0; i < nverts; i++)
             {
                 if (has_prev [i] && prev_set.find (i) == prev_set.end ())
-                    dout [v] += d [i];
+                    dout [v * nverts + i] = d [i];
+                    //dout [v] += d [i];
             }
         }
     }
@@ -136,10 +140,15 @@ Rcpp::NumericVector rcpp_get_sp_dists_par (const Rcpp::DataFrame graph,
     std::shared_ptr <DGraph> g = std::make_shared <DGraph> (nverts);
     inst_graph (g, nedges, vert_map, from, to, dist, wt);
 
-    Rcpp::NumericVector dout (static_cast <int> (nfrom), 0.0);
+    //const int nfi = static_cast <int> (nfrom);
+    const int nfi = static_cast <int> (nfrom);
+    // dout is actuall the full matrix, but has to be stored as a vector,
+    // because an RcppParalel::RMatrix must iterate over single entries, but we
+    // need here to iterate over rows only
+    Rcpp::NumericVector dout (static_cast <int> (nfrom * nverts), 0.0);
 
     // Create parallel worker
-    OneDist one_dist (fromi, nverts, d_threshold, g, heap_type, dout);
+    OneDist one_dist (fromi, nfrom, nverts, d_threshold, g, heap_type, dout);
 
     RcppParallel::parallelFor (0, static_cast <size_t> (fromi.length ()),
             one_dist);
