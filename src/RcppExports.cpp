@@ -5,53 +5,6 @@
 
 using namespace Rcpp;
 
-// rcpp_get_component_vector
-Rcpp::List rcpp_get_component_vector(const Rcpp::DataFrame& graph);
-RcppExport SEXP _moveability_rcpp_get_component_vector(SEXP graphSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Rcpp::DataFrame& >::type graph(graphSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_get_component_vector(graph));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rcpp_sf_as_network
-Rcpp::List rcpp_sf_as_network(const Rcpp::List& sf_lines, const Rcpp::DataFrame& pr);
-RcppExport SEXP _moveability_rcpp_sf_as_network(SEXP sf_linesSEXP, SEXP prSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Rcpp::List& >::type sf_lines(sf_linesSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::DataFrame& >::type pr(prSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_sf_as_network(sf_lines, pr));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rcpp_points_index_par
-Rcpp::IntegerVector rcpp_points_index_par(const Rcpp::DataFrame& xy, Rcpp::DataFrame& pts);
-RcppExport SEXP _moveability_rcpp_points_index_par(SEXP xySEXP, SEXP ptsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Rcpp::DataFrame& >::type xy(xySEXP);
-    Rcpp::traits::input_parameter< Rcpp::DataFrame& >::type pts(ptsSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_points_index_par(xy, pts));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rcpp_points_index
-Rcpp::IntegerVector rcpp_points_index(const Rcpp::DataFrame& xy, Rcpp::DataFrame& pts);
-RcppExport SEXP _moveability_rcpp_points_index(SEXP xySEXP, SEXP ptsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Rcpp::DataFrame& >::type xy(xySEXP);
-    Rcpp::traits::input_parameter< Rcpp::DataFrame& >::type pts(ptsSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_points_index(xy, pts));
-    return rcpp_result_gen;
-END_RCPP
-}
 // rcpp_get_sp_dists_par
 Rcpp::NumericVector rcpp_get_sp_dists_par(const Rcpp::DataFrame graph, const Rcpp::DataFrame vert_map_in, Rcpp::IntegerVector fromi, const double d_threshold, const std::string& heap_type);
 RcppExport SEXP _moveability_rcpp_get_sp_dists_par(SEXP graphSEXP, SEXP vert_map_inSEXP, SEXP fromiSEXP, SEXP d_thresholdSEXP, SEXP heap_typeSEXP) {
@@ -95,10 +48,6 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_moveability_rcpp_get_component_vector", (DL_FUNC) &_moveability_rcpp_get_component_vector, 1},
-    {"_moveability_rcpp_sf_as_network", (DL_FUNC) &_moveability_rcpp_sf_as_network, 2},
-    {"_moveability_rcpp_points_index_par", (DL_FUNC) &_moveability_rcpp_points_index_par, 2},
-    {"_moveability_rcpp_points_index", (DL_FUNC) &_moveability_rcpp_points_index, 2},
     {"_moveability_rcpp_get_sp_dists_par", (DL_FUNC) &_moveability_rcpp_get_sp_dists_par, 5},
     {"_moveability_rcpp_get_sp_dists", (DL_FUNC) &_moveability_rcpp_get_sp_dists, 5},
     {"_moveability_rcpp_reverse_index", (DL_FUNC) &_moveability_rcpp_reverse_index, 1},

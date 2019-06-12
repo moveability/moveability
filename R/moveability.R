@@ -24,9 +24,11 @@ moveability <- function (streetnet = NULL, city = NULL, d_threshold = 1,
 
     if (!is.null (city))
     {
+        # nocov start
         streetnet <- osmdata::opq (city) %>%
             osmdata::add_osm_feature (key = "highway") %>%
             osmdata::osmdata_sc (quiet = FALSE)
+        # nocov end
     } else if (!(methods::is (streetnet, "osmdata_sc") |
                methods::is (streetnet, "dodgr_streetnet_sc")))
         stop ("streetnet must be of format osmdata_sc, or dodgr_streetnet_sc")
@@ -132,7 +134,7 @@ moveability_to_polygons <- function (m, streetnet)
                               i$m <- mean (m$m [indx], na.rm = TRUE)
                               return (i)
                           } else
-                              return (NULL)
+                              return (NULL) # nocov
                          })
     # then remove all NULL entries
     polygons_to_sf (cycles [which (!vapply (cycles, is.null, logical (1)))])
