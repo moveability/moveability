@@ -27,6 +27,6 @@ calculation of fundamental cycles in the street network graph used to
 identify street blocks.
 }
 \examples{
-m <- moveability (streetnet = castlemaine)
+m <- moveability (streetnet = castlemaine, green_polys = castlemaine_green)
 p <- moveability_to_polygons (m = m, streetnet = castlemaine)
 }

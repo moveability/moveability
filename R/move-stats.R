@@ -2,23 +2,23 @@
 #'
 #' Calculate vector of moveability statistics for a given input street network.
 #'
-#' @param graph An `dodgr_streetnet` object
+#' @inheritParams moveability
+#' @param graph Street network in \pkg{dodgr} format obtained through applying
+#' `dodgr::weight_streetnet` to an `osmdata_sc` object.
 #' @param from Vector of points from which moveability statistics are to be be
 #' calculated.
-#' @param d_threshold Distance threshold below which moveability statistics are
-#' to be aggreagted (in kilometres).
-#' @param quiet If `FALSE`, display progress messages on screen.
 #' @return Vector of moveability values for each point in `from`, with
 #' moveability quantified as `$m`.
 #'
 #' @export 
 #' @examples
 #' graph <- dodgr::weight_streetnet (castlemaine)
+#' green_polys <- castlemaine_green # green polygon data included with package
 #' from <- sample (graph$.vx0, size = 100)
-#' d <- move_stats (graph, from = from)
+#' d <- move_stats (graph, green_polys = green_polys, from = from)
 #' # d is a `data.frame` of the coordinates of all `from` points and
 #' # correponding moveability statisics 
-move_stats <- function (graph, from, d_threshold = 1, quiet = FALSE)
+move_stats <- function (graph, from, green_polys, d_threshold = 1, quiet = FALSE)
 {
     if (missing (from))
         stop ("from must be provided")
@@ -47,23 +47,23 @@ move_stats <- function (graph, from, d_threshold = 1, quiet = FALSE)
     # distances:
     d <- matrix (d, nrow = nrow (vert_map), ncol = length (from_index))
 
-    # Get all points within d_threshold:
-    pts <- apply (d, 2, function (i) which (i > 0))
-    names (pts) <- vert_id
-    pts <- lapply (pts, function (i) {
-                       ids <- vert_map$vert [i]
-                       v [match (ids, v$id), ]  })
+    if (!quiet)
+        message ("done\nCalculating areas of green space ... ", appendLF = FALSE)
+    areas <- green_areas (d, green_polys, v, vert_id, vert_map)
 
-    d <- colSums (d)
-    names (d) <- vert_id
+    m <- colSums (d)
+    res <- data.frame (id = vert_id,
+                       m = m,
+                       area = areas,
+                       stringsAsFactors = FALSE)
 
     if (!quiet)
     {
         pt <- paste0 (round ((proc.time () - pt0) [3]))
-        message (paste ("done in", pt, "seconds."))
+        message (paste ("done; elapsed time = ", pt, "seconds."))
     }
 
-    return (d)
+    return (res)
 }
 
 #' move_statistics
@@ -71,9 +71,10 @@ move_stats <- function (graph, from, d_threshold = 1, quiet = FALSE)
 #' Alias for \link{move_stats}
 #' @inherit move_stats
 #' @export
-move_statistics <- function (graph, from, quiet = TRUE)
+move_statistics <- function (graph, from, green_polys, d_threshold = 1,
+                             quiet = TRUE)
 {
-    move_stats (graph, from, quiet = quiet)
+    move_stats (graph, from, green_polys, d_threshold, quiet)
 }
 
 #' make_vert_map
@@ -117,4 +118,43 @@ tbl_to_df <- function (graph)
         class (graph) <- classes
     }
     return (graph)
+}
+
+green_areas <- function (dmat, green_polys, vertices, vert_id, vert_map)
+{
+    pts <- apply (dmat, 2, function (i) which (i > 0))
+    names (pts) <- vert_id
+    pts <- lapply (pts, function (i) {
+                       ids <- vert_map$vert [i]
+                       vertices [match (ids, vertices$id), ]  })
+    n <- vapply (pts, nrow, integer (1))
+
+    pts_to_polygon <- function (pts)
+    {
+        lapply (pts, function (i) {
+                    if (nrow (i) == 0) return (NULL)
+                    sf::st_as_sf (i, coords = c ("x", "y"), crs = 4326) %>%
+                        sf::st_union () %>% # cast to multipoint
+                        sf::st_convex_hull () %>%
+                            sf::st_union ()
+                       })
+    }
+    index <- which (n > 2)
+    pts <- do.call (c, pts_to_polygon (pts) [index])
+    pts <- sf::st_sf (geometry = pts)
+
+    green <- sf::st_union (green_polys)
+    suppressMessages (area <- lapply (pts$geometry, function (i) {
+                                      res <- sf::st_sfc (i, crs = 4326) %>%
+                                          sf::st_intersection (green) %>%
+                                          sf::st_area () %>%
+                                          as.numeric ()
+                                      if (length (res) == 0) res <- 0
+                                      return (res)  }))
+    area <- do.call (c, area)
+
+    atemp <- rep (0, ncol (dmat))
+    atemp [index] <- area
+
+    return (atemp)
 }

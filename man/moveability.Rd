@@ -6,15 +6,15 @@
 \alias{moveability-package}
 \title{moveability.}
 \usage{
-moveability(streetnet = NULL, green = NULL, d_threshold = 1,
+moveability(streetnet = NULL, green_polys = NULL, d_threshold = 1,
   mode = "foot", quiet = FALSE)
 }
 \arguments{
-\item{streetnet}{Instead of city, a pre-downloaded or prepared street network
-can be submitted. Must be either an \pkg{sf}, \pkg{osmdata} or \pkg{dodgr}
-format.}
+\item{streetnet}{Pre-downloaded or prepared street network in either
+\code{osmdata_sc} or \code{dodgr_sc} format.}
 
-\item{green}{Areas of green space obtained from \link{get_green_space}}
+\item{green_polys}{Polygons of green space obtained from
+\link{get_green_space}}
 
 \item{d_threshold}{Distance threshold below which distances are to be
 aggreagted (in kilometres).}
@@ -32,5 +32,5 @@ Moveability statistics for any specified city.
 Calculate moveability statistics for a specified city
 }
 \examples{
-m <- moveability (streetnet = castlemaine)
+m <- moveability (streetnet = castlemaine, green_polys = castlemaine_green)
 }

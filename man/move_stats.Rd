@@ -4,18 +4,22 @@
 \alias{move_stats}
 \title{move_stats}
 \usage{
-move_stats(graph, from, d_threshold = 1, quiet = FALSE)
+move_stats(graph, from, green_polys, d_threshold = 1, quiet = FALSE)
 }
 \arguments{
-\item{graph}{An \code{dodgr_streetnet} object}
+\item{graph}{Street network in \pkg{dodgr} format obtained through applying
+\code{dodgr::weight_streetnet} to an \code{osmdata_sc} object.}
 
 \item{from}{Vector of points from which moveability statistics are to be be
 calculated.}
 
-\item{d_threshold}{Distance threshold below which moveability statistics are
-to be aggreagted (in kilometres).}
+\item{green_polys}{Polygons of green space obtained from
+\link{get_green_space}}
 
-\item{quiet}{If \code{FALSE}, display progress messages on screen.}
+\item{d_threshold}{Distance threshold below which distances are to be
+aggreagted (in kilometres).}
+
+\item{quiet}{If \code{TRUE}, dump progress information to screen.}
 }
 \value{
 Vector of moveability values for each point in \code{from}, with
@@ -26,8 +30,9 @@ Calculate vector of moveability statistics for a given input street network.
 }
 \examples{
 graph <- dodgr::weight_streetnet (castlemaine)
+green_polys <- castlemaine_green # green polygon data included with package
 from <- sample (graph$.vx0, size = 100)
-d <- move_stats (graph, from = from)
+d <- move_stats (graph, green_polys = green_polys, from = from)
 # d is a `data.frame` of the coordinates of all `from` points and
 # correponding moveability statisics 
 }

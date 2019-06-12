@@ -6,7 +6,7 @@ test_all <- (identical (Sys.getenv ("MPADGE_LOCAL"), "true") |
 test_that ("moveability to polygons", {
               net <- dodgr::weight_streetnet (castlemaine, wt_profile = "foot")
               net <- net [net$component == 1, ]
-              m <- moveability (streetnet = net)
+              m <- moveability (streetnet = net, green_polys = castlemaine_green)
               expect_message (p <- moveability_to_polygons (m = m,
                                                             streetnet = castlemaine),
                               "calculating fundamental cycles")
@@ -17,8 +17,8 @@ test_that ("moveability to polygons", {
              })
 
 test_that ("moveability_to_lines", {
-               m <- moveability (streetnet = castlemaine)
-               requireNamespace ("sf")
+               m <- moveability (streetnet = castlemaine,
+                                 green_polys = castlemaine_green)
                expect_silent (l <- moveability_to_lines (m = m,
                                                          streetnet = castlemaine))
                expect_is (l, c ("sf", "data.frame"))

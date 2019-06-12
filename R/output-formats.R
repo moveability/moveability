@@ -14,7 +14,7 @@
 #' blocks, with average moveability statistics from all points defining that
 #' block.
 #' @examples
-#' m <- moveability (streetnet = castlemaine)
+#' m <- moveability (streetnet = castlemaine, green_polys = castlemaine_green)
 #' p <- moveability_to_polygons (m = m, streetnet = castlemaine)
 #' @export
 moveability_to_polygons <- function (m, streetnet)
@@ -47,8 +47,6 @@ moveability_to_polygons <- function (m, streetnet)
 # \pkg{sf} format.
 polygons_to_sf <- function (polygons)
 {
-    requireNamespace ("sf")
-
     mvals <- unlist (lapply (polygons, function (i) i$m [1]))
 
     xy <- do.call (rbind, polygons)
@@ -91,9 +89,8 @@ polygons_to_sf <- function (polygons)
 #' with moveability statistics averaged between the two end points of each line
 #' segment.
 #' @examples
-#' m <- moveability (streetnet = castlemaine)
-#' # l <- moveability_to_lines (m = m, streetnet = castlemaine)
-#' # lsf <- sf::st_sf (l$dat, geometry = l$geometry)
+#' m <- moveability (streetnet = castlemaine, green_polys = castlemaine_green)
+#' l <- moveability_to_lines (m = m, streetnet = castlemaine)
 #' @export
 moveability_to_lines <- function (m, streetnet)
 {

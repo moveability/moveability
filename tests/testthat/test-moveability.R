@@ -8,9 +8,9 @@ test_that("moveability checks", {
                             "streetnet must be provided")
 
               expect_error (m <- moveability (streetnet = list ()),
-                            paste0 ("streetnet must be of format osmdata_sc, ",
-                                    "or dodgr_streetnet_sc"))
+                            "green_polys must be provided")
               expect_error (m <- moveability (streetnet = castlemaine,
+                                              green_polys = castlemaine_green,
                                               mode = "horse"),
                             "mode must be either foot or bicycle")
 
@@ -22,26 +22,31 @@ test_that("moveability checks", {
              })
 
 test_that("moveability fn", {
-              expect_message (m <- moveability (streetnet = castlemaine),
+              expect_message (m <- moveability (streetnet = castlemaine,
+                                                green_polys = castlemaine_green),
                               "Calculating shortest paths from")
               expect_is (m, "data.frame")
-              expect_equal (ncol (m), 6)
-              expect_equal (names (m), c ("id", "x", "y", "component", "n", "m"))
+              expect_equal (ncol (m), 7)
+              expect_equal (names (m), c ("id", "x", "y", "component",
+                                          "n", "m", "green_area"))
 
               expect_silent (net <- dodgr::weight_streetnet (castlemaine,
                                                              wt_profile = "foot"))
               net <- net [net$component == 1, ]
-              expect_message (m2 <- moveability (streetnet = net),
+              expect_message (m2 <- moveability (streetnet = net,
+                                                 green_polys = castlemaine_green),
                               "Calculating shortest paths from")
               expect_equal (ncol (m2), ncol (m)) # no component column
               expect_true (nrow (m2) < nrow (m)) # fewer points
 
               expect_message (m3 <- moveability (streetnet = castlemaine,
+                                                 green_polys = castlemaine_green,
                                                  mode = "bicycle"),
                               "Calculating shortest paths from")
               expect_is (m3, "data.frame")
-              expect_equal (ncol (m3), 6)
-              expect_equal (names (m3), c ("id", "x", "y", "component", "n", "m"))
+              expect_equal (ncol (m3), 7)
+              expect_equal (names (m3), c ("id", "x", "y", "component",
+                                           "n", "m", "green_area"))
               expect_true (nrow (m3) < nrow (m))
               # bike moveability should be greater:
               expect_true (mean (m3$m) > mean (m$m))

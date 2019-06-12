@@ -2,30 +2,39 @@
 #'
 #' Calculate moveability statistics for a specified city
 #'
-#' @param streetnet Instead of city, a pre-downloaded or prepared street network
-#' can be submitted. Must be either an \pkg{sf}, \pkg{osmdata} or \pkg{dodgr}
-#' format.
-#' @param green Areas of green space obtained from \link{get_green_space}
+#' @param streetnet Pre-downloaded or prepared street network in either
+#' `osmdata_sc` or `dodgr_sc` format.
+#' @param green_polys Polygons of green space obtained from
+#' \link{get_green_space}
 #' @param d_threshold Distance threshold below which distances are to be
 #' aggreagted (in kilometres).
 #' @param mode Mode of transport: either "foot" or "bicycle"
 #' @param quiet If `TRUE`, dump progress information to screen.
 #' @return Nothing (open interactive map)
 #' @examples
-#' m <- moveability (streetnet = castlemaine)
+#' m <- moveability (streetnet = castlemaine, green_polys = castlemaine_green)
 #' @export
-moveability <- function (streetnet = NULL, green = NULL, d_threshold = 1,
+moveability <- function (streetnet = NULL, green_polys = NULL, d_threshold = 1,
                          mode = "foot", quiet = FALSE)
 {
     if (is.null (streetnet))
         stop ("streetnet must be provided")
+    if (is.null (green_polys))
+        stop ("green_polys must be provided")
     else if (!(methods::is (streetnet, "osmdata_sc") |
                methods::is (streetnet, "dodgr_streetnet_sc")))
         stop ("streetnet must be of format osmdata_sc, or dodgr_streetnet_sc")
        
     obj <- construct_moveability_objects (streetnet, mode, quiet)
 
-    obj$verts$m <- move_stats (obj$net, from = obj$from, quiet = quiet)
+    m <- move_stats (obj$net,
+                     from = obj$from,
+                     green_polys = green_polys,
+                     d_threshold = d_threshold,
+                     quiet = quiet)
+    obj$verts$m <- m$m
+    obj$verts$green_area = m$area
+
     return (obj$verts)
 }
 

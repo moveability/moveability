@@ -14,12 +14,12 @@ Imports:
     osmdata,
     pbapply,
     Rcpp (>= 0.12.6),
-    RcppParallel
+    RcppParallel,
+    sf
 Suggests:
     dplyr,
     geodist,
     knitr,
-    sf,
     testthat
 Remotes:
     atfutures/dodgr
