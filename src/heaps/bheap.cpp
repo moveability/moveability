@@ -48,11 +48,6 @@ unsigned int BHeap::min()
     return a[1].item;
 }
 
-double BHeap::getmin()
-{
-    return a[1].key;
-}
-
 /* --- insert() ---
  * Inserts an item $item$ with associated key value $key$ into the heap.
  */
@@ -186,12 +181,6 @@ void BHeap::siftUp(unsigned int p, unsigned int q)
     /* Insert the root in the correct place in the heap. */
     a[j] = y;
     aPos[y.item] = j;
-}
-
-/*--- BHeap (debugging) -----------------------------------------------------*/
-void BHeap::dump() const
-{
-
 }
 
 

@@ -48,9 +48,6 @@ class BHeap : public Heap {
         unsigned int nItems() const { return itemCount; }
 
         long int nComps() const { return compCount; }
-        void dump() const;
-
-        double getmin();
 
         /* extra functions */
         unsigned int min();

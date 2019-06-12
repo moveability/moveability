@@ -18,7 +18,7 @@ moveability <- function (streetnet = NULL, city = NULL, d_threshold = 1,
                          mode = "foot", quiet = FALSE)
 {
     if (is.null (city) & is.null (streetnet))
-        stop ("city or streetnet must be specified")
+        stop ("city or streetnet must be provided")
     if (!is.null (city) & !is.null (streetnet))
         message ("City will be ignored, as streetnet has been provided")
 

@@ -23,8 +23,6 @@
  * decreaseKey()  - decreases the key of item 'item' to the new value newKey.
  * nItems()       - returns the number of items currently in the heap.
  * nComps()       - returns the number of key comparison operations.
- * dump()         - prints a text representation of the heap to the standard
- *                  output.
  */
 class Heap {
     public:
@@ -34,9 +32,6 @@ class Heap {
         virtual void decreaseKey(unsigned int item, double newKey) = 0;
         virtual unsigned int nItems() const = 0;
         virtual long int nComps() const = 0;
-        virtual void dump() const = 0;
-        // MP: implement getmin fn in BHeap only
-        virtual double getmin() = 0;
 };
 
 class HeapDesc {

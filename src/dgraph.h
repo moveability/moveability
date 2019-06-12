@@ -70,9 +70,6 @@ class DGraph {
         void clear();
         void addNewEdge(unsigned int srcVertexNo, unsigned int destVertexNo,
                 double dist, double wt);
-        bool edgeExists(unsigned int v, unsigned int w) const;
-        bool reachable(unsigned int s) const;
-        void print() const;
     private:
         void initVertices();
     

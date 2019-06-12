@@ -4,6 +4,9 @@ test_all <- (identical (Sys.getenv ("MPADGE_LOCAL"), "true") |
              identical (Sys.getenv ("TRAVIS"), "true"))
 
 test_that("moveability checks", {
+              expect_error (m <- moveability (),
+                            "city or streetnet must be provided")
+
               m <- moveability (streetnet = castlemaine, city = "castlemaine")
               # first message is "city or streetnet must be specified", but
               # `expect_message` matches on last message, so:
@@ -17,6 +20,11 @@ test_that("moveability checks", {
                                               mode = "horse"),
                             "mode must be either foot or bicycle")
 
+              net <- dodgr::weight_streetnet (castlemaine)
+              expect_error (m <- move_stats (graph = net),
+                            "from must be provided")
+              expect_error (m <- move_statistics (graph = net),
+                            "from must be provided")
              })
 
 test_that("moveability fn", {
