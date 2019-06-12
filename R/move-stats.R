@@ -23,6 +23,7 @@ move_stats <- function (graph, from, d_threshold = 1, quiet = FALSE)
     if (missing (from))
         stop ("from must be provided")
 
+    v <- dodgr::dodgr_vertices (graph) # used to extract points below
     d_threshold <- d_threshold * 1000 # convert to metres
 
     vert_map <- make_vert_map (graph)
@@ -45,6 +46,14 @@ move_stats <- function (graph, from, d_threshold = 1, quiet = FALSE)
     # d_threshold, but for the moment, just calculate the total sums of
     # distances:
     d <- matrix (d, nrow = nrow (vert_map), ncol = length (from_index))
+
+    # Get all points within d_threshold:
+    pts <- apply (d, 2, function (i) which (i > 0))
+    names (pts) <- vert_id
+    pts <- lapply (pts, function (i) {
+                       ids <- vert_map$vert [i]
+                       v [match (ids, v$id), ]  })
+
     d <- colSums (d)
     names (d) <- vert_id
 
