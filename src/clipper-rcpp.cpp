@@ -1,6 +1,8 @@
 #include "clipper-rcpp.h"
 
-const long long mult = 1e12;
+// clipper only works with integers, so double values have to be multiplied by
+// this amount before converting to int:
+const long long mult = 1e8;
 
 //' rcpp_clipper
 //'
