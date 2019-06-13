@@ -9,15 +9,13 @@
 #' @param d_threshold Distance threshold below which distances are to be
 #' aggreagted (in kilometres).
 #' @param mode Mode of transport: either "foot" or "bicycle"
-#' @param sf If `TRUE`, calculate green areas with \pkg{sf} routines, otherwise
-#' using internal "clipper" routines.
 #' @param quiet If `TRUE`, dump progress information to screen.
 #' @return Nothing (open interactive map)
 #' @examples
 #' m <- moveability (streetnet = castlemaine, green_polys = castlemaine_green)
 #' @export
 moveability <- function (streetnet = NULL, green_polys = NULL, d_threshold = 1,
-                         mode = "foot", sf = TRUE, quiet = FALSE)
+                         mode = "foot", quiet = FALSE)
 {
     if (is.null (streetnet))
         stop ("streetnet must be provided")
@@ -33,7 +31,6 @@ moveability <- function (streetnet = NULL, green_polys = NULL, d_threshold = 1,
                      from = obj$from,
                      green_polys = green_polys,
                      d_threshold = d_threshold,
-                     sf = sf,
                      quiet = quiet)
     obj$verts$m <- m$m
     obj$verts$hull_area = m$hull_area

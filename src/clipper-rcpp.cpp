@@ -17,7 +17,7 @@ Rcpp::DataFrame rcpp_clipper (
     for (int i = 0; i < ll_size; i++)
     {
         Rcpp::DataFrame ll = Rcpp::as <Rcpp::DataFrame> (lower_layer [i]);
-        Rcpp::NumericVector lx = ll ["X"], ly = ll ["Y"];
+        Rcpp::NumericVector lx = ll ["lon"], ly = ll ["lat"];
         for (size_t j = 0; j < lx.size (); j++)
             clip [i] << ClipperLib::IntPoint (round (lx [j] * mult),
                     round (ly [j] * mult));

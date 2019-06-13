@@ -7,7 +7,7 @@
 \title{moveability.}
 \usage{
 moveability(streetnet = NULL, green_polys = NULL, d_threshold = 1,
-  mode = "foot", sf = TRUE, quiet = FALSE)
+  mode = "foot", quiet = FALSE)
 }
 \arguments{
 \item{streetnet}{Pre-downloaded or prepared street network in either
@@ -20,9 +20,6 @@ moveability(streetnet = NULL, green_polys = NULL, d_threshold = 1,
 aggreagted (in kilometres).}
 
 \item{mode}{Mode of transport: either "foot" or "bicycle"}
-
-\item{sf}{If \code{TRUE}, calculate green areas with \pkg{sf} routines, otherwise
-using internal "clipper" routines.}
 
 \item{quiet}{If \code{TRUE}, dump progress information to screen.}
 }

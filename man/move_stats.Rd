@@ -4,8 +4,7 @@
 \alias{move_stats}
 \title{move_stats}
 \usage{
-move_stats(graph, from, green_polys, d_threshold = 1, quiet = FALSE,
-  sf = TRUE)
+move_stats(graph, from, green_polys, d_threshold = 1, quiet = FALSE)
 }
 \arguments{
 \item{graph}{Street network in \pkg{dodgr} format obtained through applying
@@ -21,9 +20,6 @@ calculated.}
 aggreagted (in kilometres).}
 
 \item{quiet}{If \code{TRUE}, dump progress information to screen.}
-
-\item{sf}{If \code{TRUE}, calculate green areas with \pkg{sf} routines, otherwise
-using internal "clipper" routines.}
 }
 \value{
 Vector of moveability values for each point in \code{from}, with

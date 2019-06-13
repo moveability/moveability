@@ -18,8 +18,7 @@
 #' d <- move_stats (graph, green_polys = green_polys, from = from)
 #' # d is a `data.frame` of the coordinates of all `from` points and
 #' # correponding moveability statisics 
-move_stats <- function (graph, from, green_polys, d_threshold = 1, quiet = FALSE,
-                        sf = TRUE)
+move_stats <- function (graph, from, green_polys, d_threshold = 1, quiet = FALSE)
 {
     if (missing (from))
         stop ("from must be provided")
@@ -51,10 +50,7 @@ move_stats <- function (graph, from, green_polys, d_threshold = 1, quiet = FALSE
     if (!quiet)
         message ("done\nCalculating areas of green space ... ", appendLF = FALSE)
     pt1 <- proc.time ()
-    if (sf)
-        areas <- green_areas_sf (d, green_polys, v, vert_id, vert_map)
-    else
-        areas <- green_areas_clipper (d, green_polys, v, vert_id, vert_map)
+    areas <- green_areas (d, green_polys, v, vert_id, vert_map)
     pt1 <- proc.time () [3] - pt1 [3]
 
     m <- colSums (d)
@@ -129,51 +125,7 @@ tbl_to_df <- function (graph)
     return (graph)
 }
 
-green_areas_sf <- function (dmat, green_polys, vertices, vert_id, vert_map)
-{
-    pts <- apply (dmat, 2, function (i) which (i > 0))
-    names (pts) <- vert_id
-    pts <- lapply (pts, function (i) {
-                       ids <- vert_map$vert [i]
-                       vertices [match (ids, vertices$id), ]  })
-    n <- vapply (pts, nrow, integer (1))
-
-    pts_to_polygon <- function (pts)
-    {
-        lapply (pts, function (i) {
-                    if (nrow (i) == 0) return (NULL)
-                    sf::st_as_sf (i, coords = c ("x", "y"), crs = 4326) %>%
-                        sf::st_union () %>% # cast to multipoint
-                        sf::st_convex_hull () %>%
-                        sf::st_union ()
-                       })
-    }
-    index <- which (n > 2)
-    pts <- do.call (c, pts_to_polygon (pts) [index])
-    pts <- sf::st_sf (geometry = pts)
-
-    hull_area <- as.numeric (sf::st_area (pts))
-
-    green <- sf::st_union (green_polys)
-    suppressMessages (area <- lapply (pts$geometry, function (i) {
-                                      res <- sf::st_sfc (i, crs = 4326) %>%
-                                          sf::st_intersection (green) %>%
-                                          sf::st_area () %>%
-                                          as.numeric ()
-                                      if (length (res) == 0) res <- 0
-                                      return (res)  }))
-    area <- do.call (c, area)
-
-    atemp <- htemp <- rep (0, ncol (dmat))
-    atemp [index] <- area
-    htemp [index] <- hull_area
-
-    data.frame (id = vert_id,
-                hull_area = htemp,
-                green_area = atemp)
-}
-
-green_areas_clipper <- function (dmat, green_polys, vertices, vert_id, vert_map)
+green_areas <- function (dmat, green_polys, vertices, vert_id, vert_map)
 {
     pts <- apply (dmat, 2, function (i) which (i > 0))
     names (pts) <- vert_id
@@ -185,8 +137,8 @@ green_areas_clipper <- function (dmat, green_polys, vertices, vert_id, vert_map)
                        index <- grDevices::chull (v$x, v$y)
                        v [c (index, index [1]), ]   })
 
-    green <- lapply (green_polys$geometry, sf::st_coordinates)
-    system.time (x <- rcpp_clipper (pts, green))
+    green <- lapply (green_polys$geometry, function (i) i [[1]])
+    x <- rcpp_clipper (pts, green)
 
     res <- data.frame (id = names (pts),
                        hull_area = x$hull_area,
