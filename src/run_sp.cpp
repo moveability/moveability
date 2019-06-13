@@ -140,8 +140,6 @@ Rcpp::NumericVector rcpp_get_sp_dists_par (const Rcpp::DataFrame graph,
     std::shared_ptr <DGraph> g = std::make_shared <DGraph> (nverts);
     inst_graph (g, nedges, vert_map, from, to, dist, wt);
 
-    //const int nfi = static_cast <int> (nfrom);
-    const int nfi = static_cast <int> (nfrom);
     // dout is actuall the full matrix, but has to be stored as a vector,
     // because an RcppParalel::RMatrix must iterate over single entries, but we
     // need here to iterate over rows only

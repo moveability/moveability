@@ -2,8 +2,9 @@ Package: moveability
 Title: Moveability statistics for any specified city
 Version: 0.0.0.1
 Authors@R: c(
-    person("Mark", "Padgham", email="mark.padgham@email.com",
-        role=c("aut", "cre")))
+    person("Mark", "Padgham", email="mark.padgham@email.com", role=c("aut", "cre")),
+    person("Angus", "Johnson", role = "cph",
+        comment="Original author of included code for polygon clipping"))
 Description: Moveability statistics for any specified city.
 License: GPL-3
 Depends: R (>= 2.10)
