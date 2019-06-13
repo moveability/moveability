@@ -13,6 +13,10 @@ test_that("moveability checks", {
                                               green_polys = castlemaine_green,
                                               mode = "horse"),
                             "mode must be either foot or bicycle")
+              expect_error (m <- moveability (streetnet = list (),
+                                              green_polys = castlemaine_green),
+                            paste0 ("streetnet must be of format osmdata_sc, ",
+                                    "or dodgr_streetnet_sc"))
 
               net <- dodgr::weight_streetnet (castlemaine)
               expect_error (m <- move_stats (graph = net),
