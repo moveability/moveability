@@ -10,6 +10,7 @@ License: GPL-3
 Depends: R (>= 2.10)
 Imports:
     dodgr,
+    dplyr,
     magrittr,
     methods,
     osmdata,
@@ -18,7 +19,6 @@ Imports:
     RcppParallel,
     sf
 Suggests:
-    dplyr,
     geodist,
     knitr,
     testthat
