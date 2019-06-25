@@ -4,7 +4,8 @@
 \alias{move_stats}
 \title{move_stats}
 \usage{
-move_stats(graph, from, green_polys, d_threshold = 1, quiet = FALSE)
+move_stats(graph, from, green_polys, activity_points, d_threshold = 1,
+  quiet = FALSE)
 }
 \arguments{
 \item{graph}{Street network in \pkg{dodgr} format obtained through applying
@@ -15,6 +16,9 @@ calculated.}
 
 \item{green_polys}{Polygons of green space obtained from
 \link{get_green_space}}
+
+\item{activity_points}{Points of activity obtained from
+\link{get_attractors}.}
 
 \item{d_threshold}{Distance threshold below which distances are to be
 aggreagted (in kilometres).}

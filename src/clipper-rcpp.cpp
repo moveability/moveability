@@ -59,3 +59,38 @@ Rcpp::DataFrame rcpp_clipper (
             Rcpp::_["stringsAsFactors"] = false);
     return res;
 }
+
+//' rcpp_activity_points
+//'
+//' layer The convex hulls of the moveability polygons
+//' @noRd
+// [[Rcpp::export]]
+Rcpp::IntegerVector rcpp_activity_points (
+        const Rcpp::List layer,
+        const Rcpp::DataFrame points)
+{
+    const std::vector <double> x = points ["x"], y = points ["y"];
+    const int n = x.size ();
+
+    Rcpp::IntegerVector count (layer.size (), 0);
+    for (int i = 0; i < layer.size (); i++)
+    {
+        Rcpp::DataFrame li = Rcpp::as <Rcpp::DataFrame> (layer [i]);
+        Rcpp::NumericVector lx = li ["x"], ly = li ["y"];
+        ClipperLib::Path path;
+        for (size_t j = 0; j < lx.size (); j++)
+            path << ClipperLib::IntPoint (round (lx [j] * mult),
+                    round (ly [j] * mult));
+
+        for (int j = 0; j < n; j++)
+        {
+            const ClipperLib::IntPoint pj =
+                ClipperLib::IntPoint (round (x [j] * mult),
+                                      round (y [j] * mult));
+            int pip = ClipperLib::PointInPolygon (pj, path);
+            if (pip != 0) count (i)++;
+        }
+    }
+
+    return count;
+}

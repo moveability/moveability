@@ -1,12 +1,12 @@
 #' get_green_space
 #'
 #' Get polygons of all green areas for a given location
-#' @param city City for which green space polygons are to be extracted.
+#' @param bbox Bounding box for which green space polygons are to be extracted.
 #' @param quiet If `TRUE`, dump progress information to screen.
 #' @return An \pkg{sf}-format `data.frame` of polygons representing all green
 #' areas.
 #' @export
-get_green_space <- function (city, quiet = FALSE)
+get_green_space <- function (bbox, quiet = FALSE)
 {
     key <- c ("leisure", "leisure", "leisure", "leisure", "surface",
               "landuse", "landuse", "landuse", "landuse")
@@ -17,7 +17,7 @@ get_green_space <- function (city, quiet = FALSE)
     {
         if (!quiet)
             message ("-----", key [i], "--", value [i], "-----")
-        green [[i]] <- osmdata::opq (city) %>%
+        green [[i]] <- osmdata::opq (bbox) %>%
             osmdata::add_osm_feature (key = key [i], value = value [i]) %>%
             osmdata::osmdata_sf (quiet = quiet)
     }
@@ -38,19 +38,19 @@ get_green_space <- function (city, quiet = FALSE)
 #' Get points of trip attraction
 #' @inheritParams get_green_space
 #' @export
-get_attractors <- function (city, quiet = FALSE)
+get_attractors <- function (bbox, quiet = FALSE)
 {
     if (!quiet) message ("-----sustenance (1/6)----")
-    sustenance_shop <- get_one_kv (city, key = "shop")
+    sustenance_shop <- get_one_kv (bbox, key = "shop")
     value <- c ("bar", "bbq", "biergarten", "cafe", "drinking_water",
                 "fast_food", "food_court", "ice_cream", "pub", "restuarant")
-    sustenance <- get_one_kv (city, key = "amenity", value = value)
+    sustenance <- get_one_kv (bbox, key = "amenity", value = value)
 
     if (!quiet) message ("-----education (2/6)----")
     value <- c ("college", "kingergarten", "library", "public_bookcase",
                 "school", "music_school", "driving_school", "language_school",
                 "university", "research_institute")
-    education <- get_one_kv (city, key = "amenity", value = value)
+    education <- get_one_kv (bbox, key = "amenity", value = value)
 
     if (!quiet) message ("-----transportation (3/6)----")
     value <- c ("bicycle_parking", "bicycle_repair_station", "bicycle_rental",
@@ -59,18 +59,18 @@ get_attractors <- function (city, quiet = FALSE)
                 "charging_station", "ferry_terminal", "fuel", "grit_bin",
                 "motorcycle_parking", "parking", "parking_entrance",
                 "parking_space", "taxi", "ticket_validator")
-    transportation <- get_one_kv (city, key = "amenity", value = value)
+    transportation <- get_one_kv (bbox, key = "amenity", value = value)
 
     if (!quiet) message ("-----healthcare (4/6)----")
     value <- c ("baby_hatch", "clinic", "dentist", "doctors", "hospital",
                 "nursing_home", "pharmacy", "social_facility", "veterinary")
-    healthcare <- get_one_kv (city, key = "amenity", value = value)
+    healthcare <- get_one_kv (bbox, key = "amenity", value = value)
 
     if (!quiet) message ("-----entertainment (5/6)----")
     value <- c ("arts_centre", "casino", "cinema", "community_centre",
                 "fountain", "gambling", "music_venue", "nightclub",
                 "planetarium", "social_centre", "studio", "theatre")
-    entertainment <- get_one_kv (city, key = "amenity", value = value)
+    entertainment <- get_one_kv (bbox, key = "amenity", value = value)
 
     if (!quiet) message ("-----other (6/6)----")
     value <- c ("animal_boarding", "animal_shelter", "baking_oven", "bench",
@@ -85,7 +85,7 @@ get_attractors <- function (city, quiet = FALSE)
                 "telephone", "toilets", "townhall", "vending_machine",
                 "waste_basket", "waste_disposal", "waste_transfer_station",
                 "watering_place", "water_point")
-    other <- get_one_kv (city, key = "amenity", value = value)
+    other <- get_one_kv (bbox, key = "amenity", value = value)
     # TODO: some of these last ones have alternative non-amenity keys
     # https://wiki.openstreetmap.org/wiki/Key:amenity
 
@@ -98,15 +98,15 @@ get_attractors <- function (city, quiet = FALSE)
                       insert_category_column (other, "other"))
 }
 
-get_one_kv <- function (city, key, value = NULL)
+get_one_kv <- function (bbox, key, value = NULL)
 {
 
     if (is.null (value))
-        temp <- osmdata::opq (city) %>%
+        temp <- osmdata::opq (bbox) %>%
             osmdata::add_osm_feature (key = key) %>%
             osmdata::osmdata_sf (quiet = TRUE)
     else
-        temp <- osmdata::opq (city) %>%
+        temp <- osmdata::opq (bbox) %>%
             osmdata::add_osm_feature (key = key, value = value) %>%
             osmdata::osmdata_sf (quiet = TRUE)
 

@@ -6,6 +6,8 @@
 #' `osmdata_sc` or `dodgr_sc` format.
 #' @param green_polys Polygons of green space obtained from
 #' \link{get_green_space}
+#' @param activity_points Points of activity obtained from
+#' \link{get_attractors}.
 #' @param d_threshold Distance threshold below which distances are to be
 #' aggreagted (in kilometres).
 #' @param mode Mode of transport: either "foot" or "bicycle"
@@ -14,7 +16,8 @@
 #' @examples
 #' m <- moveability (streetnet = castlemaine, green_polys = castlemaine_green)
 #' @export
-moveability <- function (streetnet = NULL, green_polys = NULL, d_threshold = 1,
+moveability <- function (streetnet = NULL, green_polys = NULL,
+                         activity_points, d_threshold = 1,
                          mode = "foot", quiet = FALSE)
 {
     if (is.null (streetnet))

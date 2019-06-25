@@ -6,8 +6,8 @@
 \alias{moveability-package}
 \title{moveability.}
 \usage{
-moveability(streetnet = NULL, green_polys = NULL, d_threshold = 1,
-  mode = "foot", quiet = FALSE)
+moveability(streetnet = NULL, green_polys = NULL, activity_points,
+  d_threshold = 1, mode = "foot", quiet = FALSE)
 }
 \arguments{
 \item{streetnet}{Pre-downloaded or prepared street network in either
@@ -15,6 +15,9 @@ moveability(streetnet = NULL, green_polys = NULL, d_threshold = 1,
 
 \item{green_polys}{Polygons of green space obtained from
 \link{get_green_space}}
+
+\item{activity_points}{Points of activity obtained from
+\link{get_attractors}.}
 
 \item{d_threshold}{Distance threshold below which distances are to be
 aggreagted (in kilometres).}

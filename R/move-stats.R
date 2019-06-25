@@ -18,7 +18,8 @@
 #' d <- move_stats (graph, green_polys = green_polys, from = from)
 #' # d is a `data.frame` of the coordinates of all `from` points and
 #' # correponding moveability statisics 
-move_stats <- function (graph, from, green_polys, d_threshold = 1, quiet = FALSE)
+move_stats <- function (graph, from, green_polys,
+                        activity_points, d_threshold = 1, quiet = FALSE)
 {
     if (missing (from))
         stop ("from must be provided")
@@ -48,9 +49,26 @@ move_stats <- function (graph, from, green_polys, d_threshold = 1, quiet = FALSE
     d <- matrix (d, nrow = nrow (vert_map), ncol = length (from_index))
 
     if (!quiet)
-        message ("done\nCalculating areas of green space ... ", appendLF = FALSE)
+        message ("done\nCalculating convex hulls around each point ... ",
+                 appendLF = FALSE)
     pt1 <- proc.time ()
-    areas <- green_areas (d, green_polys, v, vert_id, vert_map)
+    hulls <- get_hulls (d, v, vert_id, vert_map)
+    pt1 <- proc.time () [3] - pt1 [3]
+    if (!quiet)
+        message ("done in ",
+                 formatC (pt1, format = "f", digits = 2),
+                 " seconds.\nCalculating areas of green space ... ",
+                 appendLF = FALSE)
+    pt1 <- proc.time ()
+    areas <- green_areas (d, hulls, green_polys)
+    pt1 <- proc.time () [3] - pt1 [3]
+    if (!quiet)
+        message ("done in ",
+                 formatC (pt1, format = "f", digits = 2),
+                 " seconds.\nCalculating activity centre concentrations ... ",
+                 appendLF = FALSE)
+    pt1 <- proc.time ()
+    act_pts <- get_activity_points (hulls, activity_points)
     pt1 <- proc.time () [3] - pt1 [3]
 
     m <- colSums (d)
@@ -58,14 +76,13 @@ move_stats <- function (graph, from, green_polys, d_threshold = 1, quiet = FALSE
                        m = m,
                        hull_area = areas$hull_area,
                        green_area = areas$green_area,
+                       activities = act_pts,
                        stringsAsFactors = FALSE)
 
     if (!quiet)
     {
         pt <- format ((proc.time () - pt0) [3], format = "f", digits = 2)
         message (paste ("done; elapsed time = ", pt, "seconds."))
-        message ("Polygon intersection calculation took ",
-                 formatC (pt1, format="f", digits = 2), " seconds.")
     }
 
     return (res)
@@ -125,25 +142,33 @@ tbl_to_df <- function (graph)
     return (graph)
 }
 
-green_areas <- function (dmat, green_polys, vertices, vert_id, vert_map)
+# get convex hulls around each point:
+get_hulls <- function (dmat, vertices, vert_id, vert_map)
 {
     pts <- apply (dmat, 2, function (i) which (i > 0))
     names (pts) <- vert_id
 
-    # get convex hulls:
-    pts <- lapply (pts, function (i) {
-                       ids <- vert_map$vert [i]
-                       v <- vertices [match (ids, vertices$id), ]
-                       index <- grDevices::chull (v$x, v$y)
-                       v [c (index, index [1]), ]   })
+    lapply (pts, function (i) {
+                   ids <- vert_map$vert [i]
+                   v <- vertices [match (ids, vertices$id), ]
+                   index <- grDevices::chull (v$x, v$y)
+                   v [c (index, index [1]), ]   })
+}
 
+green_areas <- function (dmat, hulls, green_polys)
+{
     green <- lapply (green_polys$geometry, function (i) i [[1]])
-    x <- rcpp_clipper (pts, green)
+    x <- rcpp_clipper (hulls, green)
 
-    res <- data.frame (id = names (pts),
+    res <- data.frame (id = names (hulls),
                        hull_area = x$hull_area,
                        green_area = x$green_area)
     res$id <- gsub ("_start", "", res$id)
 
     return (res)
+}
+
+get_activity_points <- function (hulls, activity_points)
+{
+    rcpp_activity_points (hulls, activity_points)
 }

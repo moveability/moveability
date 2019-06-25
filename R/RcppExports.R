@@ -10,6 +10,14 @@ rcpp_clipper <- function(upper_layer, lower_layer) {
     .Call(`_moveability_rcpp_clipper`, upper_layer, lower_layer)
 }
 
+#' rcpp_activity_points
+#'
+#' layer The convex hulls of the moveability polygons
+#' @noRd
+rcpp_activity_points <- function(layer, points) {
+    .Call(`_moveability_rcpp_activity_points`, layer, points)
+}
+
 #' rcpp_get_sp_dists_par
 #'
 #' @noRd

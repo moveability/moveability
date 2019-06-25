@@ -4,10 +4,10 @@
 \alias{get_attractors}
 \title{get_attractors}
 \usage{
-get_attractors(city, quiet = FALSE)
+get_attractors(bbox, quiet = FALSE)
 }
 \arguments{
-\item{city}{City for which green space polygons are to be extracted.}
+\item{bbox}{Bounding box for which green space polygons are to be extracted.}
 
 \item{quiet}{If \code{TRUE}, dump progress information to screen.}
 }

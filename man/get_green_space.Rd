@@ -4,10 +4,10 @@
 \alias{get_green_space}
 \title{get_green_space}
 \usage{
-get_green_space(city, quiet = FALSE)
+get_green_space(bbox, quiet = FALSE)
 }
 \arguments{
-\item{city}{City for which green space polygons are to be extracted.}
+\item{bbox}{Bounding box for which green space polygons are to be extracted.}
 
 \item{quiet}{If \code{TRUE}, dump progress information to screen.}
 }
