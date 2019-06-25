@@ -14,7 +14,8 @@
 #' blocks, with average moveability statistics from all points defining that
 #' block.
 #' @examples
-#' m <- moveability (streetnet = castlemaine, green_polys = castlemaine_green)
+#' m <- moveability (streetnet = castlemaine, green_polys = castlemaine_green,
+#'                   activity_points = castlemaine_attr)
 #' p <- moveability_to_polygons (m = m, streetnet = castlemaine)
 #' @export
 moveability_to_polygons <- function (m, streetnet)
@@ -89,7 +90,8 @@ polygons_to_sf <- function (polygons)
 #' with moveability statistics averaged between the two end points of each line
 #' segment.
 #' @examples
-#' m <- moveability (streetnet = castlemaine, green_polys = castlemaine_green)
+#' m <- moveability (streetnet = castlemaine, green_polys = castlemaine_green,
+#'                   activity_points = castlemaine_attr)
 #' l <- moveability_to_lines (m = m, streetnet = castlemaine)
 #' @export
 moveability_to_lines <- function (m, streetnet)
@@ -103,7 +105,7 @@ moveability_to_lines <- function (m, streetnet)
     v <- dodgr::dodgr_vertices (graphc)
     m <- m [which (m$id %in% v$id), ]
     # scale moveability to number of activities:
-    m$m <- m$m * m$activities
+    m$m <- m$m * m$activity_centres
 
     m_from <- m$m [match (graphc$.vx0, m$id)]
     m_to <- m$m [match (graphc$.vx1, m$id)]

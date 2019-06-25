@@ -22,6 +22,7 @@ Project moveability statistics from \link{moveability} on to lines
 of street network.
 }
 \examples{
-m <- moveability (streetnet = castlemaine, green_polys = castlemaine_green)
+m <- moveability (streetnet = castlemaine, green_polys = castlemaine_green,
+                  activity_points = castlemaine_attr)
 l <- moveability_to_lines (m = m, streetnet = castlemaine)
 }

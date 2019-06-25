@@ -27,30 +27,35 @@ test_that("moveability checks", {
 
 test_that("moveability fn", {
               expect_message (m <- moveability (streetnet = castlemaine,
-                                                green_polys = castlemaine_green),
+                                                green_polys = castlemaine_green,
+                                                activity_points = castlemaine_attr),
                               "Calculating shortest paths from")
               expect_is (m, "data.frame")
-              expect_equal (ncol (m), 8)
+              expect_equal (ncol (m), 9)
               expect_equal (names (m), c ("id", "x", "y", "component",
-                                          "n", "m", "hull_area", "green_area"))
+                                          "n", "m", "hull_area", "green_area",
+                                          "activity_centres"))
 
               expect_silent (net <- dodgr::weight_streetnet (castlemaine,
                                                              wt_profile = "foot"))
               net <- net [net$component == 1, ]
               expect_message (m2 <- moveability (streetnet = net,
-                                                 green_polys = castlemaine_green),
+                                                 green_polys = castlemaine_green,
+                                                 activity_points = castlemaine_attr),
                               "Calculating shortest paths from")
               expect_equal (ncol (m2), ncol (m)) # no component column
               expect_true (nrow (m2) < nrow (m)) # fewer points
 
               expect_message (m3 <- moveability (streetnet = castlemaine,
                                                  green_polys = castlemaine_green,
+                                                 activity_points = castlemaine_attr,
                                                  mode = "bicycle"),
                               "Calculating shortest paths from")
               expect_is (m3, "data.frame")
-              expect_equal (ncol (m3), 8)
+              expect_equal (ncol (m3), 9)
               expect_equal (names (m3), c ("id", "x", "y", "component",
-                                           "n", "m", "hull_area", "green_area"))
+                                           "n", "m", "hull_area", "green_area",
+                                           "activity_centres"))
               expect_true (nrow (m3) < nrow (m))
               # bike moveability should be greater:
               expect_true (mean (m3$m) > mean (m$m))

@@ -14,7 +14,8 @@
 #' @param quiet If `TRUE`, dump progress information to screen.
 #' @return Nothing (open interactive map)
 #' @examples
-#' m <- moveability (streetnet = castlemaine, green_polys = castlemaine_green)
+#' m <- moveability (streetnet = castlemaine, green_polys = castlemaine_green,
+#'                   activity_points = castlemaine_attr)
 #' @export
 moveability <- function (streetnet = NULL, green_polys = NULL,
                          activity_points, d_threshold = 1,
@@ -33,11 +34,14 @@ moveability <- function (streetnet = NULL, green_polys = NULL,
     m <- move_stats (obj$net,
                      from = obj$from,
                      green_polys = green_polys,
+                     activity_points = activity_points,
                      d_threshold = d_threshold,
                      quiet = quiet)
+
     obj$verts$m <- m$m
     obj$verts$hull_area = m$hull_area
     obj$verts$green_area = m$green_area
+    obj$verts$activity_centres = m$activities
 
     return (obj$verts)
 }

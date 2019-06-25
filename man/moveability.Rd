@@ -35,5 +35,6 @@ Moveability statistics for any specified city.
 Calculate moveability statistics for a specified city
 }
 \examples{
-m <- moveability (streetnet = castlemaine, green_polys = castlemaine_green)
+m <- moveability (streetnet = castlemaine, green_polys = castlemaine_green,
+                  activity_points = castlemaine_attr)
 }

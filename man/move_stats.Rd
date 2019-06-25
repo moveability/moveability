@@ -35,8 +35,10 @@ Calculate vector of moveability statistics for a given input street network.
 \examples{
 graph <- dodgr::weight_streetnet (castlemaine)
 green_polys <- castlemaine_green # green polygon data included with package
+activity_points <- castlemaine_attr # activity attractors included with package
 from <- sample (graph$.vx0, size = 100)
-d <- move_stats (graph, green_polys = green_polys, from = from)
+d <- move_stats (graph, green_polys = green_polys,
+                 activity_points = activity_points, from = from)
 # d is a `data.frame` of the coordinates of all `from` points and
 # correponding moveability statisics 
 }
