@@ -108,8 +108,7 @@ size_t run_sp::make_vert_map (const Rcpp::DataFrame &vert_map_in,
     {
         vert_map.emplace (vert_map_id [i], vert_map_n [i]);
     }
-    size_t nverts = static_cast <size_t> (vert_map.size ());
-    return (nverts);
+    return (static_cast <size_t> (vert_map.size ()));
 }
 
 //' rcpp_get_sp_dists_par
@@ -143,7 +142,7 @@ Rcpp::NumericVector rcpp_get_sp_dists_par (const Rcpp::DataFrame graph,
     // dout is actuall the full matrix, but has to be stored as a vector,
     // because an RcppParalel::RMatrix must iterate over single entries, but we
     // need here to iterate over rows only
-    Rcpp::NumericVector dout (static_cast <int> (nfrom * nverts), 0.0);
+    Rcpp::NumericVector dout (static_cast <long int> (nfrom * nverts), 0.0);
 
     // Create parallel worker
     OneDist one_dist (fromi, nfrom, nverts, d_threshold, g, heap_type, dout);
