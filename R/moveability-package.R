@@ -32,11 +32,21 @@ NULL
 
 #' castlemaine_green
 #'
-#' Polygons of all green spaces in Castlemaine
+#' Polygons of all green spaces in Castlemaine, Australia
 #'
 #' @name castlemaine_green
 #' @docType data
 #' @keywords datasets
 #' @format \pkg{sf}-format `data.frame` of green space polygons
+NULL
+
+#' castlemaine_attr
+#'
+#' Centres of activity attraction in Castlemaing, Australia.
+#'
+#' @name castlemaine_attr
+#' @docType data
+#' @keywords datasets
+#' @format A `data.frame` of point locations of activity attractors
 NULL
 

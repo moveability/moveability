@@ -22,5 +22,7 @@ usethis::use_data (castlemaine, overwrite = TRUE, compress = 'xz')
 devtools::load_all (export_all = FALSE)
 castlemaine_green <- get_green_space ("castlemaine autralia")
 usethis::use_data (castlemaine_green, overwrite = TRUE, compress = 'xz')
+castlemaine_attr <- get_attractors ("castlemaine australia")
+usethis::use_data (castlemaine_attr, overwrite = TRUE, compress = 'xz')
 ```
 

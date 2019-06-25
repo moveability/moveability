@@ -6,6 +6,6 @@
 \title{castlemaine_green}
 \format{\pkg{sf}-format \code{data.frame} of green space polygons}
 \description{
-Polygons of all green spaces in Castlemaine
+Polygons of all green spaces in Castlemaine, Australia
 }
 \keyword{datasets}
