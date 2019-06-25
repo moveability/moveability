@@ -14,9 +14,7 @@ matrix:
         - os: linux
           r: release
           after_success:
-              - Rscript -e "covr::codecov(line_exclusions = " \
-                            "list('R/areal-stats.R', 'src/clipper.h', " \
-                            "'src/clipper.cpp'))"
+              Rscript -e "covr::codecov(line_exclusions = list('R/areal-stats.R', 'src/clipper.h', 'src/clipper.cpp'))"
         - os: linux
           r: devel
         - os: linux
