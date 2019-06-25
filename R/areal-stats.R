@@ -118,7 +118,11 @@ get_one_kv <- function (bbox, key, value = NULL)
         {
             temp$osm_points <- temp$osm_points [index, ]
             xy_point <- sf::st_coordinates (temp$osm_points)
-        }
+            if (!"name" %in% names (temp$osm_points))
+                temp$osm_points$name <-
+                    rep (NA_character_, nrow (temp$osm_points))
+        } else
+            temp$osm_points <- NULL
     }
 
     xy_poly <- NULL
