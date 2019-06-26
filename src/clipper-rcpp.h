@@ -9,3 +9,10 @@
 Rcpp::DataFrame rcpp_clipper (
         const Rcpp::List upper_layer,
         const Rcpp::List lower_layer);
+
+Rcpp::IntegerVector rcpp_activity_points (
+        const Rcpp::List layer,
+        const Rcpp::DataFrame points);
+
+Rcpp::NumericVector rcpp_areas (
+        const Rcpp::List layer);

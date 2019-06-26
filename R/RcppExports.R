@@ -18,6 +18,14 @@ rcpp_activity_points <- function(layer, points) {
     .Call(`_moveability_rcpp_activity_points`, layer, points)
 }
 
+#' rcpp_areas
+#'
+#' layer The convex hulls of the moveability polygons
+#' @noRd
+rcpp_areas <- function(layer) {
+    .Call(`_moveability_rcpp_areas`, layer)
+}
+
 #' rcpp_get_sp_dists_par
 #'
 #' @noRd

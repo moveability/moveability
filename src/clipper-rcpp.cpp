@@ -94,3 +94,29 @@ Rcpp::IntegerVector rcpp_activity_points (
 
     return count;
 }
+
+//' rcpp_areas
+//'
+//' layer The convex hulls of the moveability polygons
+//' @noRd
+// [[Rcpp::export]]
+Rcpp::NumericVector rcpp_areas (
+        const Rcpp::List layer)
+{
+    const int n = layer.size ();
+
+    Rcpp::NumericVector areas (n, 0.0);
+    for (int i = 0; i < n; i++)
+    {
+        Rcpp::DataFrame li = Rcpp::as <Rcpp::DataFrame> (layer [i]);
+        Rcpp::NumericVector lx = li ["x"], ly = li ["y"];
+        ClipperLib::Path path;
+        for (size_t j = 0; j < lx.size (); j++)
+            path << ClipperLib::IntPoint (round (lx [j] * mult),
+                    round (ly [j] * mult));
+
+        areas [i] = fabs (ClipperLib::Area (path)) / (mult * mult);
+    }
+
+    return areas;
+}
