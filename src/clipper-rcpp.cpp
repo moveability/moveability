@@ -2,7 +2,7 @@
 
 // clipper only works with integers, so double values have to be multiplied by
 // this amount before converting to int:
-const long long mult = 1e8;
+const long long mult = 1e6;
 
 //' rcpp_clipper
 //'
@@ -119,4 +119,67 @@ Rcpp::NumericVector rcpp_areas (
     }
 
     return areas;
+}
+
+//' rcpp_path_in_poly
+//'
+//' @noRd
+// [[Rcpp::export]]
+double rcpp_path_in_poly (
+        const Rcpp::List layer,
+        const Rcpp::DataFrame path_in)
+{
+    const std::vector <double> x = path_in ["x"], y = path_in ["y"];
+
+    ClipperLib::Paths path (1);
+    double dtot = 0.0;
+    int xold, yold;
+    for (size_t i = 0; i < path_in.nrow (); i++)
+    {
+        int xi = round (x [i] * mult);
+        int yi = round (y [i] * mult);
+        path [0] << ClipperLib::IntPoint (xi, yi);
+        if (i > 0)
+        {
+            double dx = static_cast <double> (xi - xold),
+                   dy = static_cast <double> (yi - yold);
+            dtot += sqrt (dx * dx + dy * dy);
+        }
+        xold = xi;
+        yold = yi;
+    }
+
+    ClipperLib::Paths polys (layer.size ());
+    for (int i = 0; i < layer.size (); i++)
+    {
+        Rcpp::DataFrame li = Rcpp::as <Rcpp::DataFrame> (layer [i]);
+        Rcpp::NumericVector lx = li ["lon"], ly = li ["lat"];
+        for (size_t j = 0; j < lx.size (); j++)
+            polys [i] << ClipperLib::IntPoint (round (lx [j] * mult),
+                    round (ly [j] * mult));
+    }
+
+    ClipperLib::Clipper c;
+    ClipperLib::Paths solution;
+    c.AddPaths (polys, ClipperLib::ptSubject, true);
+    c.AddPaths (path, ClipperLib::ptClip, true);
+    c.Execute (ClipperLib::ctIntersection, solution,
+            ClipperLib::pftNonZero, ClipperLib::pftNonZero);
+
+    double result = 0.0;
+    if (solution.size () > 0)
+    {
+        for (auto si: solution)
+        {
+            // lazy explicit loop easier here
+            for (int i = 1; i < si.size (); i++)
+            {
+                double dx = static_cast <double> (si [i].X - si [i - 1].X),
+                       dy = static_cast <double> (si [i].Y - si [i - 1].Y);
+                result += sqrt (dx * dx + dy * dy);
+            }
+        }
+    }
+
+    return result / dtot;
 }

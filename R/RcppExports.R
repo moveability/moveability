@@ -26,6 +26,13 @@ rcpp_areas <- function(layer) {
     .Call(`_moveability_rcpp_areas`, layer)
 }
 
+#' rcpp_path_in_poly
+#'
+#' @noRd
+rcpp_path_in_poly <- function(layer, path_in) {
+    .Call(`_moveability_rcpp_path_in_poly`, layer, path_in)
+}
+
 #' rcpp_get_sp_dists_par
 #'
 #' @noRd

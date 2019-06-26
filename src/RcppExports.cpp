@@ -40,6 +40,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rcpp_path_in_poly
+double rcpp_path_in_poly(const Rcpp::List layer, const Rcpp::DataFrame path_in);
+RcppExport SEXP _moveability_rcpp_path_in_poly(SEXP layerSEXP, SEXP path_inSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::List >::type layer(layerSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::DataFrame >::type path_in(path_inSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_path_in_poly(layer, path_in));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpp_get_sp_dists_par
 Rcpp::NumericVector rcpp_get_sp_dists_par(const Rcpp::DataFrame graph, const Rcpp::DataFrame vert_map_in, Rcpp::IntegerVector fromi, const double d_threshold, const std::string& heap_type);
 RcppExport SEXP _moveability_rcpp_get_sp_dists_par(SEXP graphSEXP, SEXP vert_map_inSEXP, SEXP fromiSEXP, SEXP d_thresholdSEXP, SEXP heap_typeSEXP) {
@@ -60,6 +72,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_moveability_rcpp_clipper", (DL_FUNC) &_moveability_rcpp_clipper, 2},
     {"_moveability_rcpp_activity_points", (DL_FUNC) &_moveability_rcpp_activity_points, 2},
     {"_moveability_rcpp_areas", (DL_FUNC) &_moveability_rcpp_areas, 1},
+    {"_moveability_rcpp_path_in_poly", (DL_FUNC) &_moveability_rcpp_path_in_poly, 2},
     {"_moveability_rcpp_get_sp_dists_par", (DL_FUNC) &_moveability_rcpp_get_sp_dists_par, 5},
     {NULL, NULL, 0}
 };
