@@ -170,6 +170,21 @@ green_areas <- function (dmat, hulls, green_polys)
     return (res)
 }
 
+# convert polygon coordinates in lon/lat to equivalent values in metres, so
+# areas can be directly calculated as m^2.
+polys_to_m2 <- function (polys)
+{
+    index <- vapply (polys, function (i) nrow (i) > 3, logical (1))
+    xy <- lapply (polys [index], function (i) {
+                      d <- geodist::geodist (i)
+                      xy <- data.frame (cmdscale (d))
+                      names (xy) <- c ("x", "y")
+                      return (xy)   })
+    res <- as.list (rep (0, length (polys)))
+    res [index] <- xy
+    return (res)
+}
+
 get_activity_points <- function (hulls, activity_points)
 {
     rcpp_activity_points (hulls, activity_points)
