@@ -171,7 +171,9 @@ green_areas <- function (dmat, hulls, green_polys)
 }
 
 # convert polygon coordinates in lon/lat to equivalent values in metres, so
-# areas can be directly calculated as m^2.
+# areas can be directly calculated as m^2. Not currently used, so nocov
+# TODO: Remove nocov
+# nocov start
 polys_to_m2 <- function (polys)
 {
     index <- vapply (polys, function (i) nrow (i) > 3, logical (1))
@@ -184,6 +186,7 @@ polys_to_m2 <- function (polys)
     res [index] <- xy
     return (res)
 }
+# nocov end
 
 get_activity_points <- function (hulls, activity_points)
 {
