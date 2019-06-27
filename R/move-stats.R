@@ -162,9 +162,26 @@ green_areas <- function (dmat, hulls, green_polys)
     green <- lapply (green_polys$geometry, function (i) i [[1]])
     x <- rcpp_clipper (hulls, green)
 
+    # convert hulls to metres:
+    xy <- lapply (hulls, function (i) {
+                      if (nrow (i) < 3)
+                          return (0)
+                      d <- geodist::geodist (i)
+                      xy <- data.frame (stats::cmdscale (d))
+                      names (xy) <- c ("x", "y")
+                      return (xy)    })
+    index <- vapply (hulls, function (i) nrow (i) >= 3, logical (1)) %>%
+        as.logical () %>%
+        which ()
+    areas <- rep (0, length (hulls))
+    areas [index] <- rcpp_areas (xy [index])
+
+    # And just scale the green area to hull areas in m2:
+    green_area <- x$green_area * areas / x$hull_area
+
     res <- data.frame (id = names (hulls),
-                       hull_area = x$hull_area,
-                       green_area = x$green_area)
+                       hull_area = areas,
+                       green_area = green_area)
     res$id <- gsub ("_start", "", res$id)
 
     return (res)
@@ -172,21 +189,18 @@ green_areas <- function (dmat, hulls, green_polys)
 
 # convert polygon coordinates in lon/lat to equivalent values in metres, so
 # areas can be directly calculated as m^2. Not currently used, so nocov
-# TODO: Remove nocov
-# nocov start
 polys_to_m2 <- function (polys)
 {
     index <- vapply (polys, function (i) nrow (i) > 3, logical (1))
     xy <- lapply (polys [index], function (i) {
                       d <- geodist::geodist (i)
-                      xy <- data.frame (cmdscale (d))
+                      xy <- data.frame (stats::cmdscale (d))
                       names (xy) <- c ("x", "y")
                       return (xy)   })
     res <- as.list (rep (0, length (polys)))
     res [index] <- xy
     return (res)
 }
-# nocov end
 
 get_activity_points <- function (hulls, activity_points)
 {
