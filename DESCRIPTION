@@ -28,8 +28,7 @@ LinkingTo:
     Rcpp,
     RcppParallel
 SystemRequirements:
-    C++11,
-    GNU make
+    C++11
 VignetteBuilder: knitr
 NeedsCompilation: yes
 Encoding: UTF-8
