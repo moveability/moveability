@@ -168,6 +168,8 @@ green_areas <- function (dmat, hulls, green_polys)
                           return (0)
                       d <- geodist::geodist (i)
                       xy <- data.frame (stats::cmdscale (d))
+                      if (length (xy) < 2)
+                          return (0)
                       names (xy) <- c ("x", "y")
                       return (xy)    })
     index <- vapply (hulls, function (i) nrow (i) >= 3, logical (1)) %>%
