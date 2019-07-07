@@ -162,9 +162,10 @@ green_areas <- function (dmat, hulls, green_polys)
     green <- lapply (green_polys$geometry, function (i) i [[1]])
     x <- rcpp_clipper (hulls, green)
 
-    # convert hulls to metres:
+    # convert hulls to metres, noting that hulls are closed, so must have > 3
+    # points
     xy <- lapply (hulls, function (i) {
-                      if (nrow (i) < 3)
+                      if (nrow (i) < 4)
                           return (0)
                       d <- geodist::geodist (i)
                       xy <- data.frame (stats::cmdscale (d))
@@ -172,7 +173,7 @@ green_areas <- function (dmat, hulls, green_polys)
                           return (0)
                       names (xy) <- c ("x", "y")
                       return (xy)    })
-    index <- vapply (hulls, function (i) nrow (i) >= 3, logical (1)) %>%
+    index <- vapply (hulls, function (i) nrow (i) >= 4, logical (1)) %>%
         as.logical () %>%
         which ()
     areas <- rep (0, length (hulls))
