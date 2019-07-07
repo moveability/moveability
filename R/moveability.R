@@ -43,6 +43,8 @@ moveability <- function (streetnet = NULL, green_polys = NULL,
     obj$verts$green_area = m$green_area
     obj$verts$activity_centres = m$activities
 
+    obj$green_area [obj$hull_area == 0] <- 0
+
     return (obj$verts)
 }
 
