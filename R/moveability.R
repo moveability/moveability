@@ -4,6 +4,8 @@
 #'
 #' @param streetnet Pre-downloaded or prepared street network in either
 #' `osmdata_sc` or `dodgr_sc` format.
+#' @param from If provided, calculate moveability statistics only at these
+#' points (given as a vector of OSM IDs).
 #' @param green_polys Polygons of green space obtained from
 #' \link{get_green_space}
 #' @param activity_points Points of activity obtained from
@@ -17,7 +19,7 @@
 #' m <- moveability (streetnet = castlemaine, green_polys = castlemaine_green,
 #'                   activity_points = castlemaine_attr)
 #' @export
-moveability <- function (streetnet = NULL, green_polys = NULL,
+moveability <- function (streetnet = NULL, from = NULL, green_polys = NULL,
                          activity_points, d_threshold = 1,
                          mode = "foot", quiet = FALSE)
 {
@@ -29,7 +31,7 @@ moveability <- function (streetnet = NULL, green_polys = NULL,
                methods::is (streetnet, "dodgr_streetnet_sc")))
         stop ("streetnet must be of format osmdata_sc, or dodgr_streetnet_sc")
        
-    obj <- construct_moveability_objects (streetnet, mode, quiet)
+    obj <- construct_moveability_objects (streetnet, from, mode, quiet)
 
     m <- move_stats (obj$net,
                      from = obj$from,
@@ -54,15 +56,16 @@ moveability <- function (streetnet = NULL, green_polys = NULL,
 # vertices include potential "_start" suffixes, whereas names in the `verts`
 # table do not include these. Thus, the explicit `from` object must also be
 # constructed and passed to `move_stats`
-construct_moveability_objects <- function (streetnet, mode, quiet)
+construct_moveability_objects <- function (streetnet, from, mode, quiet)
 {
     if (!methods::is (streetnet, "dodgr_streetnet_sc"))
     { # then convert to dodgr fmt
         res <- convert_streetnet (streetnet, mode, quiet)
     } else
     {
-        netc <- dodgr::dodgr_contract_graph (streetnet)
-        from <- unique (netc$.vx0)
+        netc <- dodgr::dodgr_contract_graph (streetnet, verts = from)
+        if (is.null (from))
+            from <- unique (netc$.vx0)
         verts <- dodgr::dodgr_vertices (netc)
         verts <- verts [which (verts$id %in% from), ]
 

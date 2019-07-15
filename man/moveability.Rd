@@ -6,12 +6,15 @@
 \alias{moveability-package}
 \title{moveability.}
 \usage{
-moveability(streetnet = NULL, green_polys = NULL, activity_points,
-  d_threshold = 1, mode = "foot", quiet = FALSE)
+moveability(streetnet = NULL, from = NULL, green_polys = NULL,
+  activity_points, d_threshold = 1, mode = "foot", quiet = FALSE)
 }
 \arguments{
 \item{streetnet}{Pre-downloaded or prepared street network in either
 \code{osmdata_sc} or \code{dodgr_sc} format.}
+
+\item{from}{If provided, calculate moveability statistics only at these
+points (given as a vector of OSM IDs).}
 
 \item{green_polys}{Polygons of green space obtained from
 \link{get_green_space}}
