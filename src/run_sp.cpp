@@ -21,11 +21,6 @@ void inst_graph (std::shared_ptr<DGraph> g, unsigned int nedges,
 }
 
 
-std::shared_ptr <HeapDesc> run_sp::getHeapImpl(const std::string& heap_type)
-{
-    return std::make_shared <HeapD<BHeap> >();
-}
-
 
 struct OneDist : public RcppParallel::Worker
 {
@@ -34,7 +29,6 @@ struct OneDist : public RcppParallel::Worker
     const size_t nverts;
     const double d_threshold;
     const std::shared_ptr <DGraph> g;
-    const std::string heap_type;
 
     RcppParallel::RVector <double> dout;
 
@@ -45,20 +39,19 @@ struct OneDist : public RcppParallel::Worker
             const size_t nverts_in,
             const double d_threshold_in,
             const std::shared_ptr <DGraph> g_in,
-            const std::string & heap_type_in,
             Rcpp::NumericVector dout_in) :
         dp_fromi (fromi), nfrom (nfrom_in), nverts (nverts_in),
         d_threshold (d_threshold_in),
-        g (g_in), heap_type (heap_type_in), dout (dout_in)
+        g (g_in), dout (dout_in)
     {
     }
 
     // Parallel function operator
     void operator() (std::size_t begin, std::size_t end)
     {
+        HeapD <BHeap> bheap;
         std::shared_ptr<Dijkstra> dijkstra =
-            std::make_shared <Dijkstra> (nverts,
-                    *run_sp::getHeapImpl (heap_type), g);
+            std::make_shared <Dijkstra> (nverts, bheap, g);
         std::vector <double> w (nverts);
         std::vector <double> d (nverts);
         std::vector <int> prev (nverts);
@@ -118,8 +111,7 @@ size_t run_sp::make_vert_map (const Rcpp::DataFrame &vert_map_in,
 Rcpp::NumericVector rcpp_get_sp_dists_par (const Rcpp::DataFrame graph,
         const Rcpp::DataFrame vert_map_in,
         Rcpp::IntegerVector fromi,
-        const double d_threshold,
-        const std::string& heap_type)
+        const double d_threshold)
 {
     Rcpp::NumericVector id_vec;
     size_t nfrom = fromi.size ();
@@ -145,7 +137,7 @@ Rcpp::NumericVector rcpp_get_sp_dists_par (const Rcpp::DataFrame graph,
     Rcpp::NumericVector dout (static_cast <long int> (nfrom * nverts), 0.0);
 
     // Create parallel worker
-    OneDist one_dist (fromi, nfrom, nverts, d_threshold, g, heap_type, dout);
+    OneDist one_dist (fromi, nfrom, nverts, d_threshold, g, dout);
 
     RcppParallel::parallelFor (0, static_cast <size_t> (fromi.length ()),
             one_dist);

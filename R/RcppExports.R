@@ -29,7 +29,7 @@ rcpp_areas <- function(layer) {
 #' rcpp_get_sp_dists_par
 #'
 #' @noRd
-rcpp_get_sp_dists_par <- function(graph, vert_map_in, fromi, d_threshold, heap_type) {
-    .Call(`_moveability_rcpp_get_sp_dists_par`, graph, vert_map_in, fromi, d_threshold, heap_type)
+rcpp_get_sp_dists_par <- function(graph, vert_map_in, fromi, d_threshold) {
+    .Call(`_moveability_rcpp_get_sp_dists_par`, graph, vert_map_in, fromi, d_threshold)
 }
 

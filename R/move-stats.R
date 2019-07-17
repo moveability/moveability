@@ -43,8 +43,7 @@ move_stats <- function (graph, from, green_polys,
         pt0 <- proc.time ()
     }
 
-    d <- rcpp_get_sp_dists_par (graph, vert_map, from_index, d_threshold,
-                                heap_type = "BHeap")
+    d <- rcpp_get_sp_dists_par (graph, vert_map, from_index, d_threshold)
     # returns a matrix which can be used to extract all points within
     # d_threshold, but for the moment, just calculate the total sums of
     # distances:
