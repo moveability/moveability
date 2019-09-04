@@ -22,6 +22,8 @@ Suggests:
     geodist,
     knitr,
     testthat
+Remotes:
+    atfutures/dodgr
 LinkingTo:
     Rcpp,
     RcppParallel
