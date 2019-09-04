@@ -1,6 +1,6 @@
 Package: moveability
 Title: Moveability statistics for any specified city
-Version: 0.0.0.1
+Version: 0.0.0.2
 Authors@R: c(
     person("Mark", "Padgham", email="mark.padgham@email.com", role=c("aut", "cre")),
     person("Angus", "Johnson", role = "cph",
@@ -22,8 +22,6 @@ Suggests:
     geodist,
     knitr,
     testthat
-Remotes:
-    atfutures/dodgr
 LinkingTo:
     Rcpp,
     RcppParallel
