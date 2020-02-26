@@ -105,7 +105,7 @@ moveability_to_lines <- function (m, streetnet)
     v <- dodgr::dodgr_vertices (graphc)
     m <- m [which (m$id %in% v$id), ]
     # scale moveability to number of activities:
-    m$m <- m$m * m$activity_centres
+    m$m <- m$m * m$activities
 
     m_from <- m$m [match (graphc$.vx0, m$id)]
     m_to <- m$m [match (graphc$.vx1, m$id)]
@@ -115,6 +115,6 @@ moveability_to_lines <- function (m, streetnet)
 
     graphc$flow <- mvals
     graph <- dodgr::dodgr_uncontract_graph (graphc)
-    graph <- dodgr::merge_directed_flows (graph)
+    graph <- dodgr::merge_directed_graph (graph)
     dodgr::dodgr_to_sf (graph)
 }
