@@ -9,7 +9,7 @@ Concept](http://www.repostatus.org/badges/latest/concept.svg)](http://www.repost
 
 Open-source engine to calculate comprehensive moveability statistics for
 a global cities. Moveability is intended to connote any means by which
-people might actively move thenselves, primarily implying walking and
+people might actively move themselves, primarily implying walking and
 cycling, but also potentially skating, scootering, wheelchairing, or any
 other conceivable form of active transport.
 
