@@ -1,6 +1,6 @@
 Package: moveability
 Title: Moveability statistics for any specified city
-Version: 0.0.0.005
+Version: 0.0.0.006
 Authors@R: c(
     person("Mark", "Padgham", , "mark.padgham@email.com", role = c("aut", "cre")),
     person("Angus", "Johnson", role = "cph",

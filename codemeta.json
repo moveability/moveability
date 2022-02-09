@@ -7,7 +7,7 @@
   "codeRepository": "https://github.com/moveability/moveability",
   "issueTracker": "https://github.com/moveability/moveability/issues",
   "license": "https://spdx.org/licenses/GPL-3.0",
-  "version": "0.0.0.5",
+  "version": "0.0.0.006",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
@@ -188,6 +188,10 @@
   },
   "fileSize": "22200.405KB",
   "readme": "https://github.com/moveability/moveability/blob/master/README.md",
-  "contIntegration": ["https://travis-ci.org/moveability/moveability", "https://ci.appveyor.com/project/moveability/moveability", "https://codecov.io/gh/moveability/moveability"],
+  "contIntegration": [
+    "https://travis-ci.org/moveability/moveability",
+    "https://ci.appveyor.com/project/moveability/moveability",
+    "https://codecov.io/gh/moveability/moveability"
+  ],
   "developmentStatus": "http://www.repostatus.org/#concept"
 }
