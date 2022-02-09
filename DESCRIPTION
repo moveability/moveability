@@ -1,13 +1,17 @@
 Package: moveability
 Title: Moveability statistics for any specified city
-Version: 0.0.0.003
+Version: 0.0.0.004
 Authors@R: c(
-    person("Mark", "Padgham", email="mark.padgham@email.com", role=c("aut", "cre")),
+    person("Mark", "Padgham", , "mark.padgham@email.com", role = c("aut", "cre")),
     person("Angus", "Johnson", role = "cph",
-        comment="Original author of included code for polygon clipping"))
+           comment = "Original author of included code for polygon clipping")
+  )
 Description: Moveability statistics for any specified city.
 License: GPL-3
-Depends: R (>= 2.10)
+URL: https://github.com/moveability/moveability
+BugReports: https://github.com/moveability/moveability/issues
+Depends: 
+    R (>= 2.10)
 Imports:
     dodgr,
     dplyr,
@@ -22,19 +26,16 @@ Suggests:
     geodist,
     knitr,
     testthat
-Remotes:
-    atfutures/dodgr
 LinkingTo:
     Rcpp,
     RcppParallel
-SystemRequirements:
-    C++11,
-    GNU make
-VignetteBuilder: knitr
-NeedsCompilation: yes
+VignetteBuilder: 
+    knitr
+Remotes:
+    atfutures/dodgr
 Encoding: UTF-8
 LazyData: true
-URL: https://github.com/moveability/moveability
-BugReports: https://github.com/moveability/moveability/issues
-RoxygenNote: 6.1.1
+NeedsCompilation: yes
 Roxygen: list(markdown = TRUE)
+RoxygenNote: 6.1.1
+SystemRequirements: C++11, GNU make
