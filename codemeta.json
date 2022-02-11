@@ -7,7 +7,7 @@
   "codeRepository": "https://github.com/moveability/moveability",
   "issueTracker": "https://github.com/moveability/moveability/issues",
   "license": "https://spdx.org/licenses/GPL-3.0",
-  "version": "0.0.0.009",
+  "version": "0.0.0.9",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
@@ -186,7 +186,7 @@
     },
     "SystemRequirements": "C++11, GNU make"
   },
-  "fileSize": "22200.03KB",
+  "fileSize": "22199.815KB",
   "readme": "https://github.com/moveability/moveability/blob/master/README.md",
   "developmentStatus": "http://www.repostatus.org/#concept"
 }
