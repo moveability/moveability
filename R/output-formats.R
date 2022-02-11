@@ -24,7 +24,7 @@ moveability_to_polygons <- function (m, streetnet)
         streetnet <- dodgr::weight_streetnet (streetnet, wt_profile = 1)
 
     streetnet$flow <- 1
-    streetnet <- dodgr::merge_directed_flows (streetnet)
+    streetnet <- dodgr::merge_directed_graph (streetnet)
     streetnet$flow <- NULL
     streetnet <- streetnet [streetnet$component == 1, ]
 
