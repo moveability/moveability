@@ -105,7 +105,7 @@ moveability_to_lines <- function (m, streetnet)
     v <- dodgr::dodgr_vertices (graphc)
     m <- m [which (m$id %in% v$id), ]
     # scale moveability to number of activities:
-    m$m <- m$m * m$activities
+    m$m <- m$m * m$activity_centres
 
     m_from <- m$m [match (graphc$.vx0, m$id)]
     m_to <- m$m [match (graphc$.vx1, m$id)]
