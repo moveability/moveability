@@ -1,7 +1,10 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+<!-- badges: start -->
 
+[![R-CMD-check](https://github.com/moveability/moveability/workflows/R-CMD-check/badge.svg)](https://github.com/moveability/moveability/actions)
 [![Project Status:
 Concept](http://www.repostatus.org/badges/latest/concept.svg)](http://www.repostatus.org/#concept)
+<!-- badges: end -->
 
 # moveability: walkability and cycleability metrics for global cities
 

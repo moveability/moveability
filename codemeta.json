@@ -7,7 +7,7 @@
   "codeRepository": "https://github.com/moveability/moveability",
   "issueTracker": "https://github.com/moveability/moveability/issues",
   "license": "https://spdx.org/licenses/GPL-3.0",
-  "version": "0.0.0.9",
+  "version": "0.0.0.010",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
